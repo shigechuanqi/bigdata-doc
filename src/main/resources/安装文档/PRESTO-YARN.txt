@@ -335,10 +335,10 @@ resources-kerberos.json
 --keystore-path /opt/presto/keystore.jks \
 --keystore-password presto \
 --krb5-config-path /etc/krb5.conf \
---krb5-principal hive \
+--krb5-principal hive/mdw1 \
 --krb5-keytab-path /opt/hive/conf/keytab/hive.keytab \
 --krb5-remote-service-name hive \
---user hive@HADOOP.COM
+--user hive/mdw1@HADOOP.COM
 
 ###JDBC
 jdbc:presto://mdw1.presto.com:8085/?SSL=true&SSLKeyStorePath=/opt/presto/keystore.jks&SSLKeyStorePassword=presto&KerberosPrincipal=hive/mdw1&KerberosRemoteServiceName=hive&KerberosKeytabPath=/opt/hive/conf/keytab/hive.keytab
