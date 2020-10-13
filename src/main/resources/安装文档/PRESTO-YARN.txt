@@ -166,12 +166,12 @@ total 444880
     "site.global.presto_query_max_memory_per_node": "600MB",
     "site.global.presto_query_max_total_memory_per_node":  "600MB",
     "site.global.presto_server_port": "8085",
-
+    "site.global.additional_config_properties":"['http-server.authentication.type=KERBEROS','http-server.authentication.krb5.service-name=hive','http-server.authentication.krb5.keytab=/opt/hive/conf/keytab/hive.keytab','http.authentication.krb5.config=/etc/krb5.conf','http-server.https.secure-random-algorithm=SHA1PRNG','internal-communication.https.required=true','internal-communication.shared-secret=internal-shared-secret','internal-communication.https.keystore.path=/opt/hive/presto/keystore.jks','internal-communication.https.keystore.key=presto','http-server.https.keystore.path=/opt/hive/presto/keystore.jks','http-server.https.keystore.key=presto']",
+    "site.global.additional_master_access_properties":"['access-control.name=ranger','ranger.hadoop_config=/opt/hadoop-3.1.3','ranger.keytab=/opt/hive/conf/keytab/hive.keytab','ranger.principal=hive','ranger.use_ugi=false']",
+    "site.global.additional_node_access_properties":"['access-control.name=allow-all']",
     "site.global.catalog": "{'tpch': ['connector.name=tpch']}",
-    "site.global.jvm_args": "['-server', '-Xmx1024M', '-XX:+UseG1GC', '-XX:G1HeapRegionSize=32M', '-XX:+UseGCOverheadLimit', '-XX:+ExplicitGCInvokesConcurrent', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:OnOutOfMemoryError=kill -9 %p']",
-    "site.global.log_properties": "['com.facebook.presto.hive=WARN',
-'com.facebook.presto.server=INFO']",
-
+    "site.global.jvm_args": "['-server', '-Xmx1024M', '-XX:+UseG1GC','-XX:G1HeapRegionSize=32M', '-XX:+UseGCOverheadLimit', '-XX:+ExplicitGCInvokesConcurrent', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:OnOutOfMemoryError=kill -9 %p']",
+    "site.global.log_properties": "['com.facebook.presto.hive=WARN','com.facebook.presto.server=INFO']",
     "application.def": ".slider/package/PRESTO/presto-yarn-package-1.6-SNAPSHOT-343.zip",
     "java_home": "/opt/hive/jdk-11.0.8"
   },
@@ -282,18 +282,18 @@ yarn rmadmin -refreshQueues
 
 
 # 管理 applicaiton
-bin/slider status presto1
-bin/slider start presto1
-bin/slider stop presto1
+./bin/slider status presto1
+./bin/slider start presto1
+./bin/slider stop presto1
 
 # 查看 coordinator 部署在哪个节点，可以作为-- server 参数提供给 presto-cli 使用
 bin/slider registry --name presto1 --getexp presto
 
 # 销毁 applicaiton
-bin/slider destroy presto1 --force
+./bin/slider destroy presto1 --force
 
 # 删除 presto-yarn-package
-bin/slider package --delete --name PRESTO
+./bin/slider package --delete --name PRESTO
 
 # 动态调整 applicaiton，增加或删除 WORKER 数
 bin/slider presto1--component WORKER 2
@@ -308,6 +308,28 @@ bin/slider presto1--component WORKER 2
 export JAVA_HOME=/opt/hive/jdk-11.0.8
 export CLASSPATH=.:${JAVA_HOME}/lib/tools.jar:${JAVA_HOME}/lib/dt.jar
 export PATH=${JAVA_HOME}/bin:$PATH
+
+
+
+
+
+####################安全模式的PRESTO-YARN+RANGER###########################
+https://github.com/shigechuanqi/presto-yarn
+
+appConfig-kerberos.json
+resources-kerberos.json
+
+编译完成之后需要修改 presto-yarn-package-1.6-SNAPSHOT-343.zip\package\files\presto-server-343.tar.gz
+先在《PRESTO-3.4.3+RANGER2.1.0-安装文档.txt》基础上需要得到$PRESTO_HOME/plugin/ranger
+里边有jar需要加入到presto-server-343.tar.gz对应的位置 结合 configure.py --> os.symlink(format('{conf_dir}'), os.path.join(format('{presto_root}/plugin/ranger/ranger-presto-plugin-impl'), 'conf')) 来实现ranger的依赖
+
+将$PRESTO_HOME/etc/ranger-presto-audit.xml ranger-presto-policymgr-ssl.xml ranger-presto-security.xml ranger-security.xml
+放到presto-yarn-package-1.6-SNAPSHOT-343.zip\package\templates\ranger-presto-audit.xml.j2 ranger-presto-policymgr-ssl.xml.j2 ranger-presto-security.xml.j2 ranger-security.xml.j2
+
+总的来说就是ranger先安装一下获取到需要的配置文件+需要的jar，然后加入到presto-yarn-package-1.6-SNAPSHOT-343.zip中
+
+
+
 
 
 
