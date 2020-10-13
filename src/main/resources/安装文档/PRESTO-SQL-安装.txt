@@ -1,0 +1,300 @@
+
+
+presto-admin
+
+1.下载源码
+git clone -b 341 https://github.com/prestosql/presto.git
+
+
+presto 
+1.下载
+https://repo1.maven.org/maven2/io/prestosql/presto-jdbc/341/presto-jdbc-341.jar
+https://repo1.maven.org/maven2/io/prestosql/presto-cli/341/presto-cli-341-executable.jar
+https://repo1.maven.org/maven2/io/prestosql/presto-server/341/presto-server-341.tar.gz
+
+
+
+2.安装jdk
+
+3.安装规划
+
+>vi /etc/hosts
+172.18.16.15 harbor.fengbangleasing.com
+172.18.16.13 dns-master.fengbangleasing.com
+172.18.16.14 dns-slave.fengbangleasing.com
+
+#安装规划
+ip             node.id       homepath                      prot   coordinator  node-scheduler  
+172.18.16.15   master-node1  /data03/presto/presto-master  8087   Y            N               
+172.18.16.15   work-node1    /data03/presto/presto         8086   N            Y               
+172.18.16.14   work-node2    /data03/presto/presto         8086   N            Y               
+172.18.16.13   work-node3    /data03/presto/presto         8086   N            Y               
+
+#启动HTTPS
+>mkdir /data03/presto/key
+>cd /data03/presto/key
+>keytool -genkeypair -alias presto -keyalg RSA -keystore keystore.jks
+#其中的cm项最好使用域名匹配*.fengbangleasing.com
+
+
+#用户密码登陆+用户权限管理
+
+
+#ssh免密登陆
+
+
+
+
+4.配置
+
+#############172.18.16.15-master-node1#############
+
+>mkdir /data03/presto/presto-master/etc
+#主要配置文件
+>vi config.properties
+#使用DNS获取主机名
+node.internal-address-source=FQDN
+
+coordinator=true
+node-scheduler.include-coordinator=false
+query.max-memory=1GB
+query.max-memory-per-node=512MB
+query.max-total-memory-per-node=1GB
+discovery-server.enabled=true
+discovery.uri=https://harbor.fengbangleasing.com:8087
+
+# LDAP specific properties
+# https will have to be enabled for ldap authentication
+http-server.http.enabled=false
+http-server.https.port=8087
+http-server.https.enabled=true
+http-server.https.keystore.path=/data03/presto/key/keystore.jks
+http-server.https.keystore.key=presto
+http-server.authentication.type=PASSWORD,CERTIFICATE
+
+internal-communication.https.required=true
+internal-communication.shared-secret=internal-shared-secret
+internal-communication.https.keystore.path=/data03/presto/key/keystore.jks
+internal-communication.https.keystore.key=presto
+
+>vi jvm.config
+-server
+-Xmx10G
+-XX:-UseBiasedLocking
+-XX:+UseG1GC
+-XX:G1HeapRegionSize=32M
+-XX:+ExplicitGCInvokesConcurrent
+-XX:+ExitOnOutOfMemoryError
+-XX:+UseGCOverheadLimit
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:ReservedCodeCacheSize=150M
+-XX:PerMethodRecompilationCutoff=10000
+-XX:PerBytecodeRecompilationCutoff=10000
+-Djdk.attach.allowAttachSelf=true
+# jdk.nio.maxCachedBufferSize controls what buffers can be allocated in per-thread "temporary buffer cache" (sun.nio.ch.Util). Value of 0 disables the cache.
+-Djdk.nio.maxCachedBufferSize=0
+-DHADOOP_USER_NAME=hive
+-Duser.timezone=Asia/Shanghai
+-XX:ErrorFile=/data03/presto/logs/product-tests-presto-jvm-error-file.log
+
+>vi node.properties
+node.environment=prestodb
+node.id=master-node1
+node.data-dir=/data03/presto/presto-master/data
+
+
+>vi log.properties
+io.prestosql = INFO
+com.sybase = INFO
+javax.net = INFO
+io.airlift = INFO
+org.eclipse.jetty = INFO
+
+
+#权限认证方案
+>vi access-control.properties
+access-control.name=file
+security.config-file=etc/rules.json
+security.refresh-period=60s
+
+>vi rules.json
+{
+  "catalogs": [
+    {
+      "user": "admin",
+      "catalog": "hive|gp_dw|jmx|localfile|mg_gps|ora_cbs|ora_gps|system",
+      "allow": "all"
+    },
+    {
+      "user": "int_fx",
+      "catalog": "hive",
+      "allow": "read-only"
+    },
+    {
+      "catalog": "system",
+      "allow": "none"
+    }
+  ],
+  "system_information": [
+    {
+      "user": "admin",
+      "allow": ["read", "write"]
+    }
+  ]
+}
+
+#密码认证方案 需http-server.authentication.type=PASSWORD + HTTPS
+>vi password-authenticator.properties
+password-authenticator.name=file
+file.password-file=etc/password.db
+file.refresh-period=1m
+file.auth-token-cache.max-size=1000
+
+#使用文件型密码配置
+>touch password.db
+root>yum -y install httpd
+>htpasswd -B -C 10 password.db username
+
+
+>mkdir catalog
+>cd catalog
+>vi hive.properties
+connector.name=hive-hadoop2
+hive.security=file
+security.config-file=etc/hive.json
+hive.metastore.uri=thrift://172.18.16.13:9083,thrift://172.18.16.14:9083,thrift://172.18.16.15:9083
+hive.config.resources=/data03/hadoop/soft/hadoop/etc/hadoop/core-site.xml,/data03/hadoop/soft/hadoop/etc/hadoop/hdfs-site.xml
+hive.metastore-cache-ttl=0s
+hive.metastore.thrift.impersonation.enabled=true
+hive.hdfs.authentication.type=NONE
+hive.hdfs.impersonation.enabled=true
+# Restrictive new directory permissions make sense when HDFS and metastore impersonation is enabled.
+hive.fs.new-directory-permissions=0700
+hive.fs.cache.max-size=10
+hive.max-partitions-per-scan=1000
+
+#hive权限控制
+>vi ../hive.json
+{
+    "schemas": [
+        {
+            "user": "admin",
+            "schema": ".*",
+            "owner": true
+        },
+        {
+            "user": "int_fx",
+            "schema": "int_dm",
+            "owner": false
+        }
+    ],
+    "tables": [
+        {
+            "user": "int_fx",
+            "schema": "int_dm",
+            "table": ".*",
+            "privileges": [
+                "SELECT"
+            ]
+        },
+        {
+            "user": "admin",
+            "schema": ".*",
+            "table": ".*",
+            "privileges": [
+               "SELECT","INSERT","DELETE","OWNERSHIP","GRANT_SELECT"
+            ]
+        }
+    ],
+    "sessionProperties": [
+        {
+            "allow": false
+        }
+    ]
+}
+
+
+#############work-node*#############
+#node节点主要两个文件有变化
+>vi config.properties
+node.internal-address-source=FQDN
+
+coordinator=false
+node-scheduler.include-coordinator=true
+query.max-memory=10GB
+query.max-memory-per-node=512MB
+query.max-total-memory-per-node=1GB
+discovery.uri=https://harbor.fengbangleasing.com:8087
+#内部主机名,修改为对应机器的主机名
+node.internal-address=harbor.fengbangleasing.com
+
+# LDAP specific properties
+# https will have to be enabled for ldap authentication
+http-server.http.enabled=false
+http-server.https.port=8086
+http-server.https.enabled=true
+http-server.https.keystore.path=/data03/presto/key/keystore.jks
+http-server.https.keystore.key=presto
+http-server.authentication.type=PASSWORD,CERTIFICATE
+
+internal-communication.https.required=true
+internal-communication.shared-secret=internal-shared-secret
+internal-communication.https.keystore.path=/data03/presto/key/keystore.jks
+internal-communication.https.keystore.key=presto
+
+>vi node.properties
+node.environment=prestodb
+#不能重复的id
+node.id=work-node1
+node.data-dir=/data03/presto/presto/data
+
+
+
+
+
+5.启动脚本 
+>vi /data03/presto/start-presto-all.sh
+
+/data03/presto/presto/bin/launcher restart
+/data03/presto/presto-master/bin/launcher restart
+ssh 172.18.16.14  "source ~/.bash_profile;/data03/presto/presto/bin/launcher restart"
+ssh 172.18.16.13  "source ~/.bash_profile;/data03/presto/presto/bin/launcher restart"
+
+> chmod +x /data03/presto/start-presto-all.sh
+
+
+
+6.cli登陆配置
+>cd /data03/presto/presto-master
+>cp presto-cli-341-executable.jar bin/presto
+>chmod +x bin/presto
+
+#cli登陆
+>./bin/presto  --server https://harbor.fengbangleasing.com:8087  \
+--keystore-path /data03/presto/key/keystore.jks \
+--keystore-password presto \
+--user admin --password
+
+7.jdbc登陆配置
+#######################JDBC#################
+        String url = "jdbc:presto://harbor.fengbangleasing.com:8087/hive/testdb";
+        Properties properties = new Properties();
+        properties.setProperty("user", "admin");
+        properties.setProperty("password", "admin");
+        properties.setProperty("SSL", "true");
+        //properties.setProperty("SSLKeyStorePath", "E:\\soft\\key\\presto_trust.jks");
+        properties.setProperty("SSLKeyStorePath", "E:\\soft\\key\\keystore.jks");
+        properties.setProperty("SSLKeyStorePassword", "presto");
+
+        Connection connection = DriverManager.getConnection(url, properties);
+
+        Statement statement = connection.createStatement();
+        ResultSet resultSet= statement.executeQuery("show tables");
+
+        String url1 = "jdbc:presto://harbor.fengbangleasing.com:8087/hive/testdb?user=admin&password=admin&SSL=true&SSLKeyStorePath=E:/soft/key/keystore.jks&SSLKeyStorePassword=presto";
+        Connection connection1 = DriverManager.getConnection(url1);
+        Statement statement1 = connection1.createStatement();
+        ResultSet resultSet1= statement1.executeQuery("show tables");
+
+8.注意
+

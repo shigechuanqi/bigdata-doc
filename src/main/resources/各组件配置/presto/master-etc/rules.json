@@ -1,0 +1,24 @@
+{
+  "catalogs": [
+    {
+      "user": "admin",
+      "catalog": "hive|gp_dw|jmx|localfile|mg_gps|ora_cbs|ora_gps|system",
+      "allow": "all"
+    },
+    {
+      "user": "int_fx",
+      "catalog": "hive",
+      "allow": "read-only"
+    },
+    {
+      "catalog": "system",
+      "allow": "none"
+    }
+  ],
+  "system_information": [
+    {
+      "user": "admin",
+      "allow": ["read", "write"]
+    }
+  ]
+}

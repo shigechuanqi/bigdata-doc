@@ -1,0 +1,536 @@
+
+
+172.16.15.82 mdw1
+172.16.15.83 sdw1
+172.16.15.84 sdw2
+
+1.防火墙关闭
+
+
+
+
+2.root用户免密登陆认证
+root>ssh-keygen -t rsa
+每台机器执行一路回车
+root@mater>cd /root/.ssh
+root@mater>cat id_rsa.pub>> authorized_keys
+
+--合并认证文件
+root@mater>ssh root@sdw1 cat ~/.ssh/id_rsa.pub>> authorized_keys
+root@mater>ssh root@sdw2 cat ~/.ssh/id_rsa.pub>> authorized_keys
+
+--拷贝生成的文件
+root@mater>scp authorized_keys root@sdw1:/root/.ssh/
+root@mater>scp authorized_keys root@sdw2:/root/.ssh/
+
+
+3.新建用户
+useradd hadoop
+ssh sdw1 useradd hadoop
+ssh sdw2 useradd hadoop
+
+useradd hdfs
+ssh sdw1 useradd hdfs
+ssh sdw2 useradd hdfs
+
+useradd yarn
+ssh sdw1 useradd yarn
+ssh sdw2 useradd yarn
+
+usermod -g hadoop hdfs
+usermod -g hadoop yarn
+
+ssh sdw1 usermod -g hadoop hdfs
+ssh sdw1 usermod -g hadoop yarn
+ssh sdw2 usermod -g hadoop yarn
+ssh sdw2 usermod -g hadoop hdfs
+
+
+
+4.hadoop yarn hdfs 免密
+
+hadoop>ssh-keygen -t rsa
+每台机器执行一路回车
+hadoop@mater>cd ~/.ssh
+hadoop@mater>cat id_rsa.pub>> authorized_keys
+
+--合并认证文件
+hadoop@mater>ssh sdw1 cat ~/.ssh/id_rsa.pub>> authorized_keys
+hadoop@mater>ssh sdw2 cat ~/.ssh/id_rsa.pub>> authorized_keys
+
+#修改文件权限
+hadoop@mater>chmod 600 ~/.ssh/authorized_keys
+
+--拷贝生成的文件
+hadoop@mater>scp authorized_keys sdw1:~/.ssh/
+hadoop@mater>scp authorized_keys sdw2:~/.ssh/
+
+#测试
+hadoop@mater>ssh sdw1 date
+hadoop@mater>ssh sdw2 date
+
+
+5.安装JDK
+
+vi /etc/profile
+
+LANG="en_US.UTF-8"
+
+export JAVA_HOME=/usr/local/jdk1.8.0_181
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib/tools.jar:${JAVA_HOME}/lib/dt.jar
+export PATH=${JAVA_HOME}/bin:${JAVA_HOME}/jre/bin:$PATH
+
+
+export HADOOP_HOME=/opt/hadoop-3.1.3
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+
+
+
+
+6.安装ZK
+
+自己想想吧
+
+7.
+
+hadoop@mater>cd /opt
+hadoop@mater>mkdir data
+hadoop@mater>cd  data
+hadoop@mater>mkdir -p tmp
+hadoop@mater>mkdir -p dfs/name
+hadoop@mater>mkdir -p dfs/data1
+hadoop@mater>mkdir -p dfs/data2
+hadoop@mater>mkdir -p journaldata
+
+root>mkdir /var/lib/hadoop-hdfs
+root>chmod 0755 /var/lib/hadoop-hdfs/
+root>chown 503 /var/lib/hadoop-hdfs
+
+
+
+
+8.配置文件
+
+core-site.xml
+hdfs-site.xml
+mapred-site.xml
+yarn-site.xml
+
+
+hadoop-env.sh
+yarn-env.sh
+
+
+9.日志级别
+
+
+
+10.环境变量
+
+export HADOOP_HOME=/opt/hadoop-3.1.3
+export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
+
+
+
+
+start-dfs.sh/stop-dfs.sh
+export HDFS_JOURNALNODE_USER=hadoop
+export HDFS_DATANODE_USER=hadoop
+export HDFS_DATANODE_SECURE_USER=hdfs
+export HDFS_NAMENODE_USER=hdfs
+export HDFS_SECONDARYNAMENODE_USER=hdfs
+
+start-yarn.sh/stop-yarn.sh
+export YARN_RESOURCEMANAGER_USER=yarn
+export HADOOP_SECURE_DN_USER=yarn
+export YARN_NODEMANAGER_USER=yarn
+
+
+12.初始化集群
+
+
+
+保证zk启动正常
+#在第一次格式化的时候需要先启动journalnode   之后就不必了,注意规划到那几台机器了
+hadoop>hdfs --daemon start journalnode
+#检查启动是否成功
+[hadoop@bigdata-node1 ~]$ jps
+2533 QuorumPeerMain
+4091 Jps
+3996 JournalNode
+
+#格式化hdfs
+hadoop@mater>hdfs namenode -format
+hadoop@mater>hdfs --daemon start namenode
+
+#格式化hdfs
+hadoop@secondarynamenode>hdfs namenode -bootstrapStandby
+
+#格式化ZKFC
+hadoop@mater>hdfs zkfc -formatZK 
+
+
+
+export HADOOP_ROOT_LOGGER=DEBUG,console
+
+
+问题
+1.启动datanode报错（最好使用高版本linux安装redhat6.5有点低）
+java.lang.RuntimeException: Although a UNIX domain socket path is configured as /opt/data/dn_socket, we cannot start a localDataXceiverServer because libhadoop cannot be loaded.
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.getDomainPeerServer(DataNode.java:1193)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.initDataXceiver(DataNode.java:1162)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.startDataNode(DataNode.java:1417)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.<init>(DataNode.java:501)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.makeInstance(DataNode.java:2806)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.instantiateDataNode(DataNode.java:2714)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.createDataNode(DataNode.java:2756)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.secureMain(DataNode.java:2900)
+	at org.apache.hadoop.hdfs.server.datanode.DataNode.main(DataNode.java:2924)
+2020-08-22 22:07:55,412 INFO org.apache.hadoop.util.ExitUtil: Exiting with status 1: java.lang.RuntimeException: Although a UNIX domain socket path is configured as /opt/data/dn_socket, we cannot start a localDataXceiverServer because libhadoop cannot be loaded.
+
+>hadoop checknative -a
+
+>cd /opt/hadoop-3.1.3/lib/native
+>ldd libhadoop.so
+#版本需要GLIBC_2.14
+./libhadoop.so: /lib64/libc.so.6: version `GLIBC_2.14' not found (required by ./libhadoop.so)
+        linux-vdso.so.1 =>  (0x00007fff2628c000)
+        libdl.so.2 => /lib64/libdl.so.2 (0x00007f7991997000)
+        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f7991779000)
+        libc.so.6 => /lib64/libc.so.6 (0x00007f79913e5000)
+        /lib64/ld-linux-x86-64.so.2 (0x0000003b2c400000)
+
+>ldd --version
+#当前系统版本2.12
+ldd (GNU libc) 2.12
+Copyright (C) 2010 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Written by Roland McGrath and Ulrich Drepper.
+
+#下载升级
+wget http://ftp.ntu.edu.tw/gnu/glibc/glibc-2.14.tar.gz
+wget http://ftp.ntu.edu.tw/gnu/glibc/glibc-linuxthreads-2.5.tar.bz2
+
+
+root>yum -y install gcc gcc-c++
+
+
+
+https://blog.csdn.net/weixin_30763397/article/details/95663396
+
+rpm -Uvh glibc-2.14.1-6.x86_64.rpm glibc-common-2.14.1-6.x86_64.rpm glibc-headers-2.14.1-6.x86_64.rpm glibc-devel-2.14.1-6.x86_64.rpm nscd-2.14.1-6.x86_64.rpm
+
+
+
+
+
+
+
+
+###########安全模式安装###########
+
+
+service krb5kdc restart
+service kadmin restart
+
+kdb5_util create -r HADOOP.COM -s
+
+>kadmin.local
+
+addprinc -randkey HTTP/mdw1@HADOOP.COM
+addprinc -randkey HTTP/sdw1@HADOOP.COM
+addprinc -randkey HTTP/sdw2@HADOOP.COM
+addprinc -randkey HTTP@HADOOP.COM
+
+#NameNode
+addprinc -randkey nn/mdw1@HADOOP.COM
+addprinc -randkey nn/sdw1@HADOOP.COM
+addprinc -randkey nn@HADOOP.COM
+
+#Secondary NameNode
+addprinc -randkey sn/mdw1@HADOOP.COM
+addprinc -randkey sn/sdw1@HADOOP.COM
+addprinc -randkey sn@HADOOP.COM
+
+#JournalNode
+addprinc -randkey jn/mdw1@HADOOP.COM
+addprinc -randkey jn/sdw1@HADOOP.COM
+addprinc -randkey jn/sdw2@HADOOP.COM
+addprinc -randkey jn@HADOOP.COM
+
+#DataNode
+addprinc -randkey dn/mdw1@HADOOP.COM
+addprinc -randkey dn/sdw1@HADOOP.COM
+addprinc -randkey dn/sdw2@HADOOP.COM
+addprinc -randkey dn@HADOOP.COM
+
+#ResourceManager 
+addprinc -randkey rm/mdw1@HADOOP.COM
+addprinc -randkey rm/sdw2@HADOOP.COM
+addprinc -randkey rm@HADOOP.COM
+
+#NodeManager 
+addprinc -randkey nm/mdw1@HADOOP.COM
+addprinc -randkey nm/sdw1@HADOOP.COM
+addprinc -randkey nm/sdw2@HADOOP.COM
+addprinc -randkey nm@HADOOP.COM
+
+
+#MapReduce JobHistory Server
+addprinc -randkey jhs/mdw1@HADOOP.COM
+addprinc -randkey jhs@HADOOP.COM
+
+addprinc -randkey hdfs/mdw1@HADOOP.COM
+addprinc -randkey hdfs/sdw1@HADOOP.COM
+addprinc -randkey hdfs/sdw2@HADOOP.COM
+addprinc -randkey hdfs@HADOOP.COM
+
+addprinc -randkey yarn/mdw1@HADOOP.COM
+addprinc -randkey yarn/sdw1@HADOOP.COM
+addprinc -randkey yarn/sdw2@HADOOP.COM
+addprinc -randkey yarn@HADOOP.COM
+
+#zookeeper 用
+addprinc -randkey zookeeper/mdw1@HADOOP.COM
+addprinc -randkey zookeeper/sdw1@HADOOP.COM
+addprinc -randkey zookeeper/sdw2@HADOOP.COM
+addprinc -randkey zookeeper@HADOOP.COM
+
+#ranger admin and usersync 用
+addprinc -randkey ranger/mdw1@HADOOP.COM
+addprinc -randkey ranger@HADOOP.COM
+
+
+
+xst -k /opt/keytab/HTTP.keytab HTTP/mdw1@HADOOP.COM HTTP/sdw1@HADOOP.COM HTTP/sdw2@HADOOP.COM HTTP@HADOOP.COM
+
+xst -k /opt/keytab/nn.keytab nn/mdw1@HADOOP.COM nn/sdw1@HADOOP.COM nn@HADOOP.COM
+
+xst -k /opt/keytab/sn.keytab sn/mdw1@HADOOP.COM sn/sdw1@HADOOP.COM sn@HADOOP.COM
+
+xst -k /opt/keytab/jn.keytab jn/mdw1@HADOOP.COM jn/sdw1@HADOOP.COM jn/sdw2@HADOOP.COM jn@HADOOP.COM
+
+xst -k /opt/keytab/dn.keytab dn/mdw1@HADOOP.COM dn/sdw1@HADOOP.COM dn/sdw2@HADOOP.COM dn@HADOOP.COM
+
+xst -k /opt/keytab/rm.keytab rm/mdw1@HADOOP.COM rm/sdw2@HADOOP.COM rm@HADOOP.COM
+
+xst -k /opt/keytab/nm.keytab nm/mdw1@HADOOP.COM nm/sdw1@HADOOP.COM nm/sdw2@HADOOP.COM nm@HADOOP.COM
+
+xst -k /opt/keytab/jhs.keytab jhs/mdw1@HADOOP.COM jhs@HADOOP.COM
+
+xst -k /opt/keytab/hadoop.keytab hadoop/mdw1@HADOOP.COM hadoop/sdw1@HADOOP.COM hadoop/sdw2@HADOOP.COM hadoop@HADOOP.COM
+
+xst -k zookeeper.keytab zookeeper/mdw1@HADOOP.COM zookeeper/sdw1@HADOOP.COM zookeeper/sdw2@HADOOP.COM zookeeper@HADOOP.COM
+
+xst -k hive.keytab hive/mdw1@HADOOP.COM hive/sdw1@HADOOP.COM hive/sdw2@HADOOP.COM hive@HADOOP.COM
+
+
+
+xst -k /opt/keytab/hdfs.keytab hdfs/mdw1@HADOOP.COM hdfs/sdw1@HADOOP.COM hdfs/sdw2@HADOOP.COM hdfs@HADOOP.COM
+xst -k /opt/keytab/yarn.keytab yarn/mdw1@HADOOP.COM yarn/sdw1@HADOOP.COM yarn/sdw2@HADOOP.COM yarn@HADOOP.COM
+
+xst -k /opt/keytab/ranger.keytab ranger/mdw1@HADOOP.COM  ranger@HADOOP.COM
+
+
+chown hdfs:hadoop dn.keytab
+chown hdfs:hadoop nn.keytab
+chown hdfs:hadoop sn.keytab
+chown hdfs:hadoop jn.keytab
+chmod 666 HTTP.keytab
+chmod 666 hadoop.keytab
+chown yarn:hadoop nm.keytab
+chown yarn:hadoop rm.keytab
+chown yarn:hadoop jhs.keytab
+
+
+
+
+
+#############zookeeper kerberos###############
+参考：https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/cdh_sg_zookeeper_security.html
+
+>vi $ZOOKEEPER_HOME/conf/zoo.cfg
+
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/opt/zookeeper-3.4.13/data
+dataLogDir=/opt/zookeeper-3.4.13/logs
+clientPort=2181
+server.1=mdw1:2888:3888
+server.2=sdw1:2888:3888
+server.3=sdw2:2888:3888
+authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+jaasLoginRenew=3600000
+
+
+
+#其他机器注意机器名字
+>vi $ZOOKEEPER_HOME/conf/jaas.conf
+Server {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  keyTab="/opt/zookeeper-3.4.13/conf/zookeeper.keytab"
+  storeKey=true
+  useTicketCache=false
+  principal="zookeeper/mdw1@HADOOP.COM";
+};
+
+Client {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  keyTab="/opt/zookeeper-3.4.13/conf/hive.keytab"
+  storeKey=true
+  useTicketCache=false
+  serviceName="zookeeper"
+  principal="hive/mdw1@HADOOP.COM";
+};
+
+
+>vi $ZOOKEEPER_HOME/conf/java.env
+export JVMFLAGS="$JVMFLAGS -Djava.security.auth.login.config=/opt/zookeeper-3.4.13/conf/jaas.conf"
+
+
+
+#################LinuxContainerExecutor########################
+https://blog.csdn.net/chunhongbi5635/article/details/100973716
+
+hadoop3.1.3 LinuxContainerExecutor.java getRunAsUser() 修改yarn如果yarn.nodemanager.linux-container-executor.nonsecure-mode.local-user=yarn
+    String getRunAsUser(String user) {
+        // 如果指定yarn用户这里直接返回yarn
+        if(containerLimitUsers){
+            return nonsecureLocalUser;
+        }
+
+        if (UserGroupInformation.isSecurityEnabled() ||
+                !containerLimitUsers) {
+            return user;
+        } else {
+            return nonsecureLocalUser;
+        }
+    }
+
+##Shuffle 会校验运行用户与临时文件所属用户校验,这里去掉校验
+SecureIOUtils.java
+  private static void checkStat(File f, String owner, String group, 
+      String expectedOwner, 
+      String expectedGroup) throws IOException {
+    boolean success = true;
+    if (expectedOwner != null &&
+        !expectedOwner.equals(owner)) {
+      if (Path.WINDOWS) {
+        UserGroupInformation ugi =
+            UserGroupInformation.createRemoteUser(expectedOwner);
+        final String adminsGroupString = "Administrators";
+        success = owner.equals(adminsGroupString)
+            && ugi.getGroups().contains(adminsGroupString);
+      } else {
+        success = false;
+      }
+    }
+    if (!success) {
+      //throw new IOException(
+      //    "Owner '" + owner + "' for path " + f + " did not match " +
+      //        "expected owner '" + expectedOwner + "'");
+    }
+  }
+
+
+
+
+>vi $HADOOP_HOME/etc/hadoop/yarn-site.xml
+<property>
+<name>yarn.nodemanager.container-executor.class</name>
+<value>org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor</value>
+</property>
+<property>
+<name>yarn.nodemanager.linux-container-executor.group</name>
+<value>hadoop</value>
+</property>
+<property>
+<name>yarn.nodemanager.linux-container-executor.nonsecure-mode.limit-users</name>
+<value>false</value>
+</property>
+<property>
+<name>yarn.nodemanager.linux-container-executor.nonsecure-mode.local-user</name>
+<value>yarn</value>
+</property>
+
+
+
+>vi $HADOOP_HOME/etc/hadoop/container-executor.cfg
+yarn.nodemanager.linux-container-executor.group=hadoop#configured value of yarn.nodemanager.linux-container-executor.group
+min.user.id=10#默认1000 创建的用户如果没有指定id会报错,建议指定较大ID
+
+#这些文件需要更新，不更新会报错无法创建NODEMAGER
+>chown root:hadoop $HADOOP_HOME/etc/hadoop/container-executor.cfg
+>chown root:hadoop $HADOOP_HOME/etc/hadoop
+>chown root:hadoop $HADOOP_HOME/etc
+>chown root:hadoop $HADOOP_HOME
+>chown root:hadoop $HADOOP_HOME/bin/container-executor
+>chmod 6050 $HADOOP_HOME/bin/container-executor
+
+
+
+
+
+###########HTTPS SSL#####################
+HDFS 开启HTTPS需要
+
+#一台机器执行
+openssl req -new -x509 -keyout /opt/keytab/keystore/ca_key -out /opt/keytab/keystore/ca_cert  -days 9999 -subj '/C=CN/ST=beijing/L=beijing/O=fengtai/OU=security/CN=hadoop.com'
+
+#COPY到其他机器
+scp -r keystore/ sdw1:/opt/keytab/
+scp -r keystore/ sdw2:/opt/keytab/
+
+
+#每台机器上执行
+name="CN=$HOSTNAME, OU=security, O=fengtai, L=beijing, ST=beijing, C=CN"
+keytool -keystore keystore -alias localhost -validity 9999 -genkey -keyalg RSA -keysize 2048 -dname "$name"
+
+keytool -keystore truststore -alias CARoot -import -file ca_cert
+keytool -certreq -alias localhost -keystore keystore -file cert
+
+openssl x509 -req -CA ca_cert -CAkey ca_key -in cert -out cert_signed -days 9999 -CAcreateserial
+
+keytool -keystore keystore -alias CARoot -import -file ca_cert
+keytool -keystore keystore -alias localhost -import -file cert_signed
+
+mv keystore keystore.jks
+mv truststore truststore.jks
+
+vi ssl-client.xml
+vi ssl-server.xml
+
+
+
+
+
+
+
+
+
+
+
+
+
+待测试？
+https://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-hdfs/Federation.html
+https://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-hdfs/HdfsSnapshots.html
+https://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-hdfs/CentralizedCacheManagement.html
+https://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-common/RackAwareness.html
+https://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-hdfs/ArchivalStorage.html
+
+https://hadoop.apache.org/docs/r3.1.3/hadoop-yarn/hadoop-yarn-site/SharedCache.html
+https://hadoop.apache.org/docs/r3.1.3/hadoop-yarn/hadoop-yarn-site/NodeLabel.html

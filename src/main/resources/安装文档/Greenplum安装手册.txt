@@ -1,0 +1,1553 @@
+=========================================================================
+检查磁盘raid情况
+
+[root@localhost data]#  dmesg |grep -i raid
+dracut: rd_NO_DM: removing DM RAID activation
+dracut: rd_NO_MD: removing MD RAID activation
+megaraid_sas 0000:03:00.0: PCI INT A -> GSI 26 (level, low) -> IRQ 26
+megaraid_sas 0000:03:00.0: setting latency timer to 64
+megaraid_sas 0000:03:00.0: irq 92 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 93 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 94 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 95 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 96 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 97 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 98 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 99 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 100 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 101 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 102 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 103 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 104 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 105 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 106 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 107 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 108 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 109 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 110 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 111 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 112 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 113 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 114 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 115 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 116 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 117 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 118 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 119 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 120 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 121 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 122 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: irq 123 for MSI/MSI-X
+megaraid_sas 0000:03:00.0: [scsi0]: FW supports<96> MSIX vector,Online CPUs: <32>,Current MSIX <32>
+megaraid_sas 0000:03:00.0: Controller type: MR,Memory size is: 2048MB
+megaraid_sas 0000:03:00.0: FW supports: UnevenSpanSupport=1
+scsi0 : LSI SAS based MegaRAID driver
+
+
+
+[root@localhost usr]# cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 02 Id: 00 Lun: 00
+  Vendor: DELL     Model: PERC H730P Mini  Rev: 4.26
+  Type:   Direct-Access                    ANSI  SCSI revision: 05
+Host: scsi0 Channel: 02 Id: 01 Lun: 00
+  Vendor: DELL     Model: PERC H730P Mini  Rev: 4.26
+  Type:   Direct-Access                    ANSI  SCSI revision: 05
+Host: scsi10 Channel: 00 Id: 00 Lun: 00
+  Vendor: PLDS     Model: DVD+-RW DS-8ABSH Rev: LD51
+  Type:   CD-ROM                           ANSI  SCSI revision: 05
+
+
+
+
+
+=========================================================================
+[root@localhost greenplum]# cat /proc/cpuinfo|grep "physical id"|sort|uniq
+physical id     : 0
+physical id     : 1
+[root@localhost greenplum]# cat /proc/cpuinfo|grep "cpu cores"|uniq
+cpu cores       : 8
+[root@localhost greenplum]# cat /proc/cpuinfo|grep processor
+processor       : 0
+processor       : 1
+processor       : 2
+processor       : 3
+processor       : 4
+processor       : 5
+processor       : 6
+processor       : 7
+processor       : 8
+processor       : 9
+processor       : 10
+processor       : 11
+processor       : 12
+processor       : 13
+processor       : 14
+processor       : 15
+processor       : 16
+processor       : 17
+processor       : 18
+processor       : 19
+processor       : 20
+processor       : 21
+processor       : 22
+processor       : 23
+processor       : 24
+processor       : 25
+processor       : 26
+processor       : 27
+processor       : 28
+processor       : 29
+processor       : 30
+processor       : 31
+
+[root@localhost greenplum]# cat /proc/meminfo
+MemTotal:       132052092 kB
+MemFree:        129103480 kB
+Buffers:          163092 kB
+Cached:          1311864 kB
+SwapCached:            0 kB
+Active:           916424 kB
+Inactive:         762692 kB
+Active(anon):     204220 kB
+Inactive(anon):     3264 kB
+Active(file):     712204 kB
+Inactive(file):   759428 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:      104857592 kB
+SwapFree:       104857592 kB
+Dirty:                48 kB
+Writeback:             0 kB
+AnonPages:        204232 kB
+Mapped:            57000 kB
+Shmem:              3300 kB
+Slab:             229576 kB
+SReclaimable:     108700 kB
+SUnreclaim:       120876 kB
+KernelStack:        7208 kB
+PageTables:        28408 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    170883636 kB
+Committed_AS:     834560 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:      554032 kB
+VmallocChunk:   34290646484 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:     49152 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:        7168 kB
+DirectMap2M:     2019328 kB
+DirectMap1G:    132120576 kB
+
+[root@localhost greenplum]# free -m
+             total       used       free     shared    buffers     cached
+Mem:        128957       2878     126078          0        159       1281
+-/+ buffers/cache:       1437     127519
+Swap:       102399          0     102399
+
+=========================================================================
+rpm -ivh  xfsprogs-3.1.1-14.el6.x86_64.rpm
+rpm -ivh  xfsdump-3.0.4-3.el6.x86_64.rpm
+rpm -ivh  xfsprogs-devel-3.1.1-14.el6.x86_64.rpm
+rpm -ivh  xfsprogs-qa-devel-3.1.1-14.el6.x86_64.rpm
+=========================================================================
+172.16.18.10
+[root@localhost xfs]# umount /data
+[root@localhost xfs]# mkfs -t xfs -f /dev/sdb1
+[root@localhost DatabaseServer]# mkdir /greenplum
+[root@localhost DatabaseServer]# blkid
+/dev/sda3: UUID="46910f9b-45c3-411b-bbad-af27a669172a" TYPE="ext4" 
+/dev/sdb1: UUID="75226303-6c35-438f-a548-34b8e9ed5fbd" TYPE="xfs" 
+/dev/sda1: UUID="eef1144e-c3bf-4c03-a9da-d72e9cc19828" TYPE="ext4" 
+/dev/sda2: UUID="b63b2e66-4e84-4221-9f30-2498f69ebf7d" TYPE="swap" 
+[root@localhost DatabaseServer]# vi /etc/fstab
+
+
+#
+# /etc/fstab
+# Created by anaconda on Tue Oct 25 16:01:30 2016
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=46910f9b-45c3-411b-bbad-af27a669172a /                       ext4    defaults        1 1
+UUID=eef1144e-c3bf-4c03-a9da-d72e9cc19828 /boot                   ext4    defaults        1 2
+UUID=b63b2e66-4e84-4221-9f30-2498f69ebf7d swap                    swap    defaults        0 0
+tmpfs                   /dev/shm                tmpfs   defaults        0 0
+devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+sysfs                   /sys                    sysfs   defaults        0 0
+proc                    /proc                   proc    defaults        0 0
+UUID=75226303-6c35-438f-a548-34b8e9ed5fbd       /greenplum      xfs    defaults        0 0
+
+
+[root@localhost DatabaseServer]# mount /greenplum
+
+[root@localhost greenplum]# mount
+/dev/sda3 on / type ext4 (rw)
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+tmpfs on /dev/shm type tmpfs (rw,rootcontext="system_u:object_r:tmpfs_t:s0")
+/dev/sda1 on /boot type ext4 (rw)
+none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+none on /sys/kernel/config type configfs (rw)
+gvfs-fuse-daemon on /root/.gvfs type fuse.gvfs-fuse-daemon (rw,nosuid,nodev)
+/dev/sdb1 on /greenplum type xfs (rw)
+
+
+ 在172.16.18.11和172.16.18.12上分别安装xfs的rpm包，创建文件系统，mount文件系统
+UUID=42435e99-7382-40ec-949f-9c258f051897       /greenplum      xfs    defaults        0 0
+UUID=4887cc5a-1040-448b-9b55-e3f33e052189       /greenplum      xfs    defaults        0 0
+
+=========================================================================
+在各个节点创建gpadmin用户
+[root@localhost greenplum]# groupadd gpadmin
+[root@localhost greenplum]# useradd -g gpadmin -s /bin/bash -d /home/gpadmin gpadmin
+[root@localhost greenplum]# passwd gpadmin
+
+
+[root@localhost greenplum]# mkdir /greenplum/gpdata
+[root@localhost greenplum]# chown gpadmin:gpadmin /greenplum/gpdata
+
+=========================================================================
+配置网络
+172.16.18.10上操作
+[root@localhost ~]# vi /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=mdw
+
+
+[root@localhost ~]# vi /etc/hosts
+
+172.16.18.10    mdw
+172.16.18.11    sdw1
+172.16.18.12    sdw2
+
+
+[root@localhost ~]# chkconfig iptables off
+[root@localhost network-scripts]# chkconfig cups off
+[root@localhost network-scripts]# chkconfig ip6tables off
+**********************************************************************************************
+172.16.18.11上操作
+[root@localhost ~]# vi /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=sdw1
+
+[root@localhost ~]# vi /etc/hosts
+
+172.16.18.10    mdw
+172.16.18.11    sdw1
+172.16.18.12    sdw2
+
+
+[root@localhost ~]# chkconfig iptables off
+[root@localhost network-scripts]# chkconfig cups off
+[root@localhost network-scripts]# chkconfig ip6tables off
+
+**********************************************************************************************
+172.16.18.12上操作
+[root@localhost ~]# vi /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=sdw2
+
+[root@localhost ~]# vi /etc/hosts
+
+172.16.18.10    mdw
+172.16.18.11    sdw1
+172.16.18.12    sdw2
+
+
+[root@localhost ~]# chkconfig iptables off
+[root@localhost network-scripts]# chkconfig cups off
+[root@localhost network-scripts]# chkconfig ip6tables off
+=========================================================================
+三个节点都修改系统参数
+[root@localhost ~]# vi /etc/sysctl.conf
+#########for greenplum parameter###########################
+kernel.shmmax = 5000000000
+kernel.shmmni = 4096
+kernel.shmall = 40000000000
+kernel.sem = 250 5120000 100 20480
+kernel.sysrq = 1
+kernel.core_uses_pid = 1
+kernel.msgmnb = 65536
+kernel.msgmax = 65536
+kernel.msgmni = 2048
+net.ipv4.tcp_syncookies = 1
+net.ipv4.ip_forward = 0
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_max_syn_backlog = 4096
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.default.arp_filter = 1
+net.ipv4.conf.all.arp_filter = 1
+net.ipv4.ip_local_port_range = 1025 65535
+net.core.netdev_max_backlog = 10000
+vm.overcommit_memory = 2
+
+
+[root@localhost network-scripts]# sysctl -p
+=========================================================================
+
+[root@localhost ~]#  vi /etc/security/limits.conf
+* soft nofile 65536
+* hard nofile 65536
+* soft nproc 131072
+* hard nproc 131072
+=========================================================================
+10
+[root@localhost ~]# vi /etc/rc.d/rc.local
+blockdev --setra 16384 /dev/sdb1
+***********************
+11
+[root@localhost ~]# vi /etc/rc.d/rc.local
+blockdev --setra 16384 /dev/sdb
+***********************
+12
+[root@localhost ~]# vi /etc/rc.d/rc.local
+blockdev --setra 16384 /dev/sdb
+=========================================================================
+三个节点都作如下修改
+
+[root@localhost ~]# vi /boot/grub/menu.lst
+在kernel一行的最后加上elevator=deadline
+=========================================================================
+10
+[gpadmin@localhost gpdata]$ mkdir /greenplum/gpdata/master
+*******************
+11
+[gpadmin@localhost greenplum]# mkdir -p /greenplum/gpdata/pdata
+[gpadmin@localhost greenplum]# mkdir -p /greenplum/gpdata/mdata
+
+*******************
+12
+[gpadmin@localhost greenplum]# mkdir -p /greenplum/gpdata/pdata
+[gpadmin@localhost greenplum]# mkdir -p /greenplum/gpdata/mdata
+
+=========================================================================
+10
+[root@localhost greenplum]# cp /root/software/greenplum/DatabaseServer/greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin /home/gpadmin
+[root@localhost gpadmin]# chown gpadmin:gpadmin /home/gpadmin/greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin
+[root@localhost gpadmin]# su - gpadmin
+[gpadmin@localhost ~]$ ll
+total 140424
+-rwxr-xr-x 1 gpadmin gpadmin 143791566 Oct 27 18:09 greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin
+
+[gpadmin@localhost ~]$ ./greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin 
+
+********************************************************************************
+Do you accept the Pivotal Database license agreement? [yes|no]
+********************************************************************************
+
+ yes
+
+
+
+
+********************************************************************************
+Provide the installation path for Greenplum Database or press ENTER to 
+accept the default installation path: /usr/local/greenplum-db-4.3.8.1
+********************************************************************************
+
+/home/gpadmin/greenplum-db-4.3.8.1
+
+
+
+
+********************************************************************************
+Install Greenplum Database into </home/gpadmin/greenplum-db-4.3.8.1>? [yes|no]
+********************************************************************************
+
+yes
+
+
+
+
+********************************************************************************
+/home/gpadmin/greenplum-db-4.3.8.1 does not exist.
+Create /home/gpadmin/greenplum-db-4.3.8.1 ? [yes|no]
+(Selecting no will exit the installer)
+********************************************************************************
+
+yes
+
+
+
+Extracting product to /home/gpadmin/greenplum-db-4.3.8.1
+
+********************************************************************************
+Installation complete.
+Greenplum Database is installed in /home/gpadmin/greenplum-db-4.3.8.1
+
+Pivotal Greenplum documentation is available
+for download at http://docs.gopivotal.com/gpdb
+********************************************************************************
+
+
+
+
+[root@localhost ~]# vi /root/.bash_profile
+source /home/gpadmin/greenplum-db/greenplum_path.sh
+
+[root@localhost greenplum-db]# vi /home/gpadmin/.bash_profile 
+source /home/gpadmin/greenplum-db/greenplum_path.sh
+
+[root@localhost greenplum-db]# source /home/gpadmin/greenplum-db/greenplum_path.sh
+=========================================================================
+[gpadmin@localhost gpconfigs]$ mkdir /home/gpadmin/greenplum-db/gpconfigs
+[gpadmin@localhost gpconfigs]$ cd /home/gpadmin/greenplum-db/gpconfigs
+[gpadmin@localhost gpconfigs]$ vi all_hosts
+mdw
+sdw1
+sdw2
+
+[gpadmin@localhost gpconfigs]$ vi all_segs
+sdw1
+sdw2
+=========================================================================
+[root@localhost ~]# gpssh-exkeys -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts
+[STEP 1 of 5] create local ID and authorize on local host
+
+[STEP 2 of 5] keyscan all hosts and update known_hosts file
+
+[STEP 3 of 5] authorize current user on remote hosts
+  ... send to mdw
+  ... send to sdw1
+  ***
+  *** Enter password for sdw1: 
+  ... send to sdw2
+
+[STEP 4 of 5] determine common authentication file content
+
+[STEP 5 of 5] copy authentication files to all remote hosts
+  ... finished key exchange with mdw
+  ... finished key exchange with sdw1
+  ... finished key exchange with sdw2
+
+[INFO] completed successfully
+
+=========================================================================
+[root@localhost ~]# su - gpadmin
+[gpadmin@localhost ~]$ gpssh-exkeys -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts
+[STEP 1 of 5] create local ID and authorize on local host
+
+[STEP 2 of 5] keyscan all hosts and update known_hosts file
+
+[STEP 3 of 5] authorize current user on remote hosts
+  ... send to mdw
+  ... send to sdw1
+  ***
+  *** Enter password for sdw1: 
+  ... send to sdw2
+
+[STEP 4 of 5] determine common authentication file content
+
+[STEP 5 of 5] copy authentication files to all remote hosts
+  ... finished key exchange with mdw
+  ... finished key exchange with sdw1
+  ... finished key exchange with sdw2
+
+[INFO] completed successfully
+
+=========================================================================
+10
+[gpadmin@localhost gpdata]$ vi /home/gpadmin/.bash_profile
+
+export MASTER_DATA_DIRECTORY=/greenplum/gpdata/gpseg-1
+
+11
+[gpadmin@localhost gpdata]$ vi /home/gpadmin/.bash_profile
+source /home/gpadmin/greenplum-db/greenplum_path.sh
+
+12
+[gpadmin@localhost gpdata]$ vi /home/gpadmin/.bash_profile
+source /home/gpadmin/greenplum-db/greenplum_path.sh
+=========================================================================
+时钟同步
+10
+[root@localhost ~]# service ntpd start
+Starting ntpd:                                             [  OK  ]
+[root@localhost ~]# chkconfig ntpd on
+
+11
+[root@localhost ~]# vi /etc/ntp.conf
+server 172.16.18.10
+
+
+[root@localhost ~]# service ntpd start
+Starting ntpd:                                             [  OK  ]
+[root@localhost ~]# chkconfig ntpd on
+
+
+12
+[root@localhost ~]# vi /etc/ntp.conf
+server 172.16.18.10
+
+
+[root@localhost ~]# service ntpd start
+Starting ntpd:                                             [  OK  ]
+[root@localhost ~]# chkconfig ntpd on
+
+=========================================================================
+在其他节点上安装greenplum
+10
+[root@localhost gpadmin]# tar -cvf ./greenplum-db-4.3.8.1.tar greenplum-db-4.3.8.1
+[root@localhost gpadmin]# ll
+total 589308
+lrwxrwxrwx  1 gpadmin gpadmin        22 Oct 27 18:18 greenplum-db -> ./greenplum-db-4.3.8.1
+drwxrwxr-x 12 gpadmin gpadmin      4096 Oct 27 18:39 greenplum-db-4.3.8.1
+-rwxr-xr-x  1 gpadmin gpadmin 143791566 Oct 27 18:09 greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin
+-rw-r--r--  1 root    root    459653120 Oct 27 19:42 greenplum-db-4.3.8.1.tar
+[root@localhost gpadmin]# chown gpadmin:gpadmin greenplum-db-4.3.8.1.tar 
+[gpadmin@localhost ~]$ scp ./greenplum-db-4.3.8.1.tar sdw1:/home/gpadmin/
+[gpadmin@localhost ~]$ scp ./greenplum-db-4.3.8.1.tar sdw2:/home/gpadmin/
+
+
+11
+[gpadmin@localhost ~]$ cd /home/gpadmin
+[gpadmin@localhost ~]$ ll
+total 448884
+-rw-r--r-- 1 gpadmin gpadmin 459653120 Oct 27 19:45 greenplum-db-4.3.8.1.tar
+[gpadmin@localhost ~]$ tar -xvf greenplum-db-4.3.8.1.tar 
+[gpadmin@localhost ~]$ ln -s /home/gpadmin/greenplum-db-4.3.8.1 /home/gpadmin/greenplum-db
+
+
+
+12
+[gpadmin@localhost ~]$ cd /home/gpadmin
+[gpadmin@localhost ~]$ ll
+total 448884
+-rw-r--r-- 1 gpadmin gpadmin 459653120 Oct 27 19:46 greenplum-db-4.3.8.1.tar
+[gpadmin@localhost ~]$ tar -xvf greenplum-db-4.3.8.1.tar 
+[gpadmin@localhost ~]$ ln -s /home/gpadmin/greenplum-db-4.3.8.1 /home/gpadmin/greenplum-db
+
+
+
+=========================================================================
+10
+[gpadmin@localhost gpconfigs]$ gpcheck -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+20161027:19:57:17:010593 gpcheck:localhost:gpadmin-[INFO]:-dedupe hostnames
+20161027:19:57:18:010593 gpcheck:localhost:gpadmin-[INFO]:-Detected platform: Generic Linux Cluster
+20161027:19:57:18:010593 gpcheck:localhost:gpadmin-[INFO]:-generate data on servers
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[INFO]:-copy data files from servers
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[INFO]:-delete remote tmp files
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[INFO]:-Using gpcheck config file: /home/gpadmin/greenplum-db/./etc/gpcheck.cnf
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(None): utility will not check all settings when run as non-root user
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): on device (sr0) IO scheduler 'cfq' does not match expected value 'deadline'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): on device (sda) IO scheduler 'cfq' does not match expected value 'deadline'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): on device (sdb) IO scheduler 'cfq' does not match expected value 'deadline'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): /etc/sysctl.conf value for key 'kernel.shmmax' has value '5000000000' and expects '500000000'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): /etc/sysctl.conf value for key 'kernel.sem' has value '250 5120000 100 20480' and expects '250 512000 100 2048'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): /etc/sysctl.conf value for key 'kernel.shmall' has value '40000000000' and expects '4000000000'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): XFS filesystem on device /dev/sdb1 has 1 XFS mount options and 4 are expected
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'allocsize=16m'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'inode64'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[ERROR]:-GPCHECK_ERROR host(localhost.localdomain): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'noatime'
+20161027:19:57:19:010593 gpcheck:localhost:gpadmin-[INFO]:-gpcheck completing...
+
+重启一下三个节点
+
+[gpadmin@mdw ~]$ gpcheck -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+20161027:20:53:53:005147 gpcheck:mdw:gpadmin-[INFO]:-dedupe hostnames
+20161027:20:53:53:005147 gpcheck:mdw:gpadmin-[INFO]:-Detected platform: Generic Linux Cluster
+20161027:20:53:53:005147 gpcheck:mdw:gpadmin-[INFO]:-generate data on servers
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[INFO]:-copy data files from servers
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[INFO]:-delete remote tmp files
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[INFO]:-Using gpcheck config file: /home/gpadmin/greenplum-db/./etc/gpcheck.cnf
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(None): utility will not check all settings when run as non-root user
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): /etc/sysctl.conf value for key 'kernel.shmmax' has value '5000000000' and expects '500000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): /etc/sysctl.conf value for key 'kernel.sem' has value '250 5120000 100 20480' and expects '250 512000 100 2048'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): /etc/sysctl.conf value for key 'kernel.shmall' has value '40000000000' and expects '4000000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb has 1 XFS mount options and 4 are expected
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'allocsize=16m'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'inode64'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'noatime'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): /etc/sysctl.conf value for key 'kernel.shmmax' has value '5000000000' and expects '500000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): /etc/sysctl.conf value for key 'kernel.sem' has value '250 5120000 100 20480' and expects '250 512000 100 2048'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): /etc/sysctl.conf value for key 'kernel.shmall' has value '40000000000' and expects '4000000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb has 1 XFS mount options and 4 are expected
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'allocsize=16m'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'inode64'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'noatime'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): /etc/sysctl.conf value for key 'kernel.shmmax' has value '5000000000' and expects '500000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): /etc/sysctl.conf value for key 'kernel.sem' has value '250 5120000 100 20480' and expects '250 512000 100 2048'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): /etc/sysctl.conf value for key 'kernel.shmall' has value '40000000000' and expects '4000000000'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 has 1 XFS mount options and 4 are expected
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'allocsize=16m'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'inode64'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'noatime'
+20161027:20:53:56:005147 gpcheck:mdw:gpadmin-[INFO]:-gpcheck completing...
+
+
+5000000000
+500000000
+250 5120000 100 20480
+250 512000 100 2048
+40000000000
+4000000000
+
+
+
+[gpadmin@mdw ~]$ gpcheck -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+20161027:21:01:40:005432 gpcheck:mdw:gpadmin-[INFO]:-dedupe hostnames
+20161027:21:01:40:005432 gpcheck:mdw:gpadmin-[INFO]:-Detected platform: Generic Linux Cluster
+20161027:21:01:40:005432 gpcheck:mdw:gpadmin-[INFO]:-generate data on servers
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[INFO]:-copy data files from servers
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[INFO]:-delete remote tmp files
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[INFO]:-Using gpcheck config file: /home/gpadmin/greenplum-db/./etc/gpcheck.cnf
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(None): utility will not check all settings when run as non-root user
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb has 1 XFS mount options and 4 are expected
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'allocsize=16m'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'inode64'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw1): XFS filesystem on device /dev/sdb is missing the recommended mount option 'noatime'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb has 1 XFS mount options and 4 are expected
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'allocsize=16m'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'inode64'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(sdw2): XFS filesystem on device /dev/sdb is missing the recommended mount option 'noatime'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 has 1 XFS mount options and 4 are expected
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'allocsize=16m'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'inode64'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(mdw): XFS filesystem on device /dev/sdb1 is missing the recommended mount option 'noatime'
+20161027:21:01:41:005432 gpcheck:mdw:gpadmin-[INFO]:-gpcheck completing...
+
+
+
+UUID=75226303-6c35-438f-a548-34b8e9ed5fbd       /greenplum      xfs    rw,noatime,inode64,allocsize=16m	0 0
+
+umount /greenplum
+mount /greenplum
+
+
+[gpadmin@mdw ~]$ gpcheck -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+20161027:21:10:28:005706 gpcheck:mdw:gpadmin-[INFO]:-dedupe hostnames
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-Detected platform: Generic Linux Cluster
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-generate data on servers
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-copy data files from servers
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-delete remote tmp files
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-Using gpcheck config file: /home/gpadmin/greenplum-db/./etc/gpcheck.cnf
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[ERROR]:-GPCHECK_ERROR host(None): utility will not check all settings when run as non-root user
+20161027:21:10:29:005706 gpcheck:mdw:gpadmin-[INFO]:-gpcheck completing...
+
+=========================================================================
+
+[gpadmin@mdw ~]$ gpcheckio -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+
+[gpadmin@mdw ~]$ gpcheckos -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -m mdw
+/home/gpadmin/greenplum-db/./bin/gpcheckos:19: DeprecationWarning: The popen2 module is deprecated.  Use the subprocess module.
+  import getopt, popen2, pickle, time
+checking: postgres.md5 = ad5b7f4b8092d6246a98b2dc17b64bf9
+checking: postgres.version = postgres (Greenplum Database) 8.2.15
+checking: sync.time between (2016-10-27 21:12:54.990794, 2016-10-27 21:13:14.990794)
+checking: platform.hostname
+checking: platform.memory
+checking: platform.memory = 135221342208
+checking: platform.system = linux or sunos
+checking: platform.system = linux
+checking: platform.release = 2.6.32-431.el6.x86_64
+checking: sysctl.kernel.shmall = 4000000000
+checking: sysctl.net.ipv4.tcp_max_syn_backlog = 4096
+checking: sysctl.vm.overcommit_memory = 2
+checking: sysctl.net.core.netdev_max_backlog = 10000
+checking: ulimit.nofile >= 65536
+checking: env.GPHOME = /home/gpadmin/greenplum-db/.
+checking: sysctl.kernel.sem = 250 64000 100 512
+   ERROR: on sdw1 - "sysctl.kernel.sem = 250 64000 100 512" failed (current value is 250        512000  100     2048)
+   ERROR: on sdw2 - "sysctl.kernel.sem = 250 64000 100 512" failed (current value is 250        512000  100     2048)
+   ERROR: on mdw - "sysctl.kernel.sem = 250 64000 100 512" failed (current value is 250 512000  100     2048)
+checking: sysctl.kernel.shmmax >= 500000000
+checking: ulimit.nproc >= 131072
+   ERROR: on sdw1 - "ulimit.nproc >= 131072" failed (current value is 1024)
+   ERROR: on sdw2 - "ulimit.nproc >= 131072" failed (current value is 1024)
+   ERROR: on mdw - "ulimit.nproc >= 131072" failed (current value is 1024)
+checking: sysctl.kernel.shmmni >= 4096
+checking: sysctl.net.ipv4.ip_local_port_range = 1025 65535
+checking: sysctl.net.ipv4.tcp_tw_recycle = 1
+checking: python.version >= 2.5.0
+
+
+[FIX sdw1] please add/modify the following line(s) in /etc/sysctl.conf
+kernel.sem = 250 64000 100 512
+
+[FIX sdw1] please add/modify the following line(s) in /etc/security/limits.conf
+* soft nproc 131072
+* hard nproc 131072
+
+[FIX sdw2] please add/modify the following line(s) in /etc/sysctl.conf
+kernel.sem = 250 64000 100 512
+
+[FIX sdw2] please add/modify the following line(s) in /etc/security/limits.conf
+* soft nproc 131072
+* hard nproc 131072
+
+[FIX mdw] please add/modify the following line(s) in /etc/sysctl.conf
+kernel.sem = 250 64000 100 512
+
+[FIX mdw] please add/modify the following line(s) in /etc/security/limits.conf
+* soft nproc 131072
+* hard nproc 131072
+
+* soft nproc 131072
+* hard nproc 131072
+
+
+
+
+[root@mdw ~]# vi /etc/security/limits.d/90-nproc.conf
+
+[root@sdw1 ~]# vi /etc/security/limits.d/90-nproc.conf
+
+[root@sdw2 ~]# vi /etc/security/limits.d/90-nproc.conf
+
+=========================================================================
+gpcheckperf -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -r N -d /tmp > checknetwork.out
+
+
+[gpadmin@mdw ~]$ cat  checknetwork.out
+/home/gpadmin/greenplum-db/./bin/gpcheckperf -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts -r N -d /tmp
+
+-------------------
+--  NETPERF TEST
+-------------------
+
+====================
+==  RESULT
+====================
+Netperf bisection bandwidth test
+mdw -> sdw1 = 345.860000
+sdw2 -> mdw = 249.450000
+sdw1 -> mdw = 324.540000
+mdw -> sdw2 = 412.080000
+
+Summary:
+sum = 1331.93 MB/sec
+min = 249.45 MB/sec
+max = 412.08 MB/sec
+avg = 332.98 MB/sec
+median = 345.86 MB/sec
+
+[Warning] connection between mdw and sdw1 is no good
+[Warning] connection between sdw2 and mdw is no good
+[Warning] connection between sdw1 and mdw is no good
+
+
+
+=========================================================================
+[gpadmin@mdw ~]$ cp $GPHOME/docs/cli_help/gpconfigs/gpinitsystem_config  $GPHOME/gpconfigs/
+[gpadmin@mdw ~]$ cp $GPHOME/docs/cli_help/gpconfigs/gpinitsystem_config  $GPHOME/gpconfigs/
+[gpadmin@mdw ~]$ cd $GPHOME/gpconfigs/
+[gpadmin@mdw gpconfigs]$ ll
+total 12
+-rw-rw-r-- 1 gpadmin gpadmin   14 Oct 27 18:43 all_hosts
+-rw-rw-r-- 1 gpadmin gpadmin   10 Oct 27 18:44 all_segs
+-r--r--r-- 1 gpadmin gpadmin 2660 Oct 27 21:44 gpinitsystem_config
+
+
+=========================================================================
+
+
+[gpadmin@mdw gpconfigs]$ cat  gpinitsystem_config 
+# FILE NAME: gpinitsystem_config
+
+# Configuration file needed by the gpinitsystem
+
+################################################
+#### REQUIRED PARAMETERS
+################################################
+
+#### Name of this Greenplum system enclosed in quotes.
+ARRAY_NAME="Fengbang DW"
+
+#### Naming convention for utility-generated data directories.
+SEG_PREFIX=gpseg
+
+#### Base number by which primary segment port numbers 
+#### are calculated.
+PORT_BASE=40000
+
+#### File system location(s) where primary segment data directories 
+#### will be created. The number of locations in the list dictate
+#### the number of primary segments that will get created per
+#### physical host (if multiple addresses for a host are listed in 
+#### the hostfile, the number of segments will be spread evenly across
+#### the specified interface addresses).
+declare -a DATA_DIRECTORY=(/greenplum/gpdata/pdata /greenplum/gpdata/pdata /greenplum/gpdata/pdata /greenplum/gpdata/pdata)
+
+#### OS-configured hostname or IP address of the master host.
+MASTER_HOSTNAME=mdw
+
+#### File system location where the master data directory 
+#### will be created.
+MASTER_DIRECTORY=/greenplum/gpdata/master
+
+#### Port number for the master instance. 
+MASTER_PORT=5432
+
+#### Shell utility used to connect to remote hosts.
+TRUSTED_SHELL=ssh
+
+#### Maximum log file segments between automatic WAL checkpoints.
+CHECK_POINT_SEGMENTS=8
+
+#### Default server-side character set encoding.
+ENCODING=UNICODE
+
+################################################
+#### OPTIONAL MIRROR PARAMETERS
+################################################
+
+#### Base number by which mirror segment port numbers 
+#### are calculated.
+MIRROR_PORT_BASE=50000
+
+#### Base number by which primary file replication port 
+#### numbers are calculated.
+REPLICATION_PORT_BASE=41000
+
+#### Base number by which mirror file replication port 
+#### numbers are calculated. 
+MIRROR_REPLICATION_PORT_BASE=51000
+
+#### File system location(s) where mirror segment data directories 
+#### will be created. The number of mirror locations must equal the
+#### number of primary locations as specified in the 
+#### DATA_DIRECTORY parameter.
+declare -a MIRROR_DATA_DIRECTORY=(/greenplum/gpdata/mdata /greenplum/gpdata/mdata /greenplum/gpdata/mdata /greenplum/gpdata/mdata)
+
+
+################################################
+#### OTHER OPTIONAL PARAMETERS
+################################################
+
+#### Create a database of this name after initialization.
+#DATABASE_NAME=name_of_database
+
+#### Specify the location of the host address file here instead of
+#### with the the -h option of gpinitsystem.
+MACHINE_LIST_FILE=/home/gpadmin/greenplum-db/gpconfigs/all_segs
+
+=========================================================================
+
+初始化实例
+
+[gpadmin@mdw gpconfigs]$ gpinitsystem -c /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config
+
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Checking configuration parameters, please wait...
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Reading Greenplum configuration file /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Locale has not been set in /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config, will set to default value
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Locale set to en_US.utf8
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-No DATABASE_NAME set, will exit following template1 updates
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-MASTER_MAX_CONNECT not set, will set to default value 250
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Checking configuration parameters, Completed
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing multi-home checks, please wait...
+...
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Configuring build for standard array
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing multi-home checks, Completed
+20161027:22:14:21:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Building primary segment instance array, please wait...
+............
+20161027:22:14:25:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Building group mirror array type , please wait...
+............
+20161027:22:14:28:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Checking Master host
+20161027:22:14:28:009678 gpinitsystem:mdw:gpadmin-[INFO]:-Checking new segment hosts, please wait...
+./bin/touch: cannot touch `/greenplum/gpdata/pdata/tmp_file_test': No such file or directory
+20161027:22:14:30:gpinitsystem:mdw:gpadmin-[FATAL]:-Cannot write to /greenplum/gpdata/pdata on mdw  Script Exiting!
+
+
+
+MACHINE_LIST_FILE=/home/gpadmin/greenplum-db/gpconfigs/all_segs
+=========================================================================
+
+
+[gpadmin@mdw gpconfigs]$ gpinitsystem -c /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config
+20161027:22:35:19:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checking configuration parameters, please wait...
+20161027:22:35:19:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Reading Greenplum configuration file /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config
+20161027:22:35:19:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Locale has not been set in /home/gpadmin/greenplum-db/gpconfigs/gpinitsystem_config, will set to default value
+20161027:22:35:19:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Locale set to en_US.utf8
+20161027:22:35:19:018873 gpinitsystem:mdw:gpadmin-[INFO]:-No DATABASE_NAME set, will exit following template1 updates
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-MASTER_MAX_CONNECT not set, will set to default value 250
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checking configuration parameters, Completed
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing multi-home checks, please wait...
+..
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Configuring build for standard array
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing multi-home checks, Completed
+20161027:22:35:20:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Building primary segment instance array, please wait...
+........
+20161027:22:35:22:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Building group mirror array type , please wait...
+........
+20161027:22:35:24:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checking Master host
+20161027:22:35:24:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checking new segment hosts, please wait...
+................
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checking new segment hosts, Completed
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Greenplum Database Creation Parameters
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:---------------------------------------
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master Configuration
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:---------------------------------------
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master instance name       = Fengbang DW
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master hostname            = mdw
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master port                = 5432
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master instance dir        = /greenplum/gpdata/master/gpseg-1
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master LOCALE              = en_US.utf8
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Greenplum segment prefix   = gpseg
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master Database            = 
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master connections         = 250
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master buffers             = 128000kB
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Segment connections        = 750
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Segment buffers            = 128000kB
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Checkpoint segments        = 8
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Encoding                   = UNICODE
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Postgres param file        = Off
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Initdb to be used          = /home/gpadmin/greenplum-db/./bin/initdb
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-GP_LIBRARY_PATH is         = /home/gpadmin/greenplum-db/./lib
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Ulimit check               = Passed
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Array host connect type    = Single hostname per node
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master IP address [1]      = ::1
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master IP address [2]      = 172.16.18.10
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master IP address [3]      = 192.168.122.1
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Master IP address [4]      = fe80::92e2:baff:fe0d:e91e
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Standby Master             = Not Configured
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Primary segment #          = 4
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total Database segments    = 8
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Trusted shell              = ssh
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Number segment hosts       = 2
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Mirror port base           = 50000
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Replicaton port base       = 41000
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Mirror replicaton port base= 51000
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Mirror segment #           = 4
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Mirroring config           = ON
+20161027:22:35:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Mirroring type             = Group
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:----------------------------------------
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Greenplum Primary Segment Configuration
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:----------------------------------------
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/pdata/gpseg0  40000   2       0       41000
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/pdata/gpseg1  40001   3       1       41001
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/pdata/gpseg2  40002   4       2       41002
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/pdata/gpseg3  40003   5       3       41003
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/pdata/gpseg4  40000   6       4       41000
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/pdata/gpseg5  40001   7       5       41001
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/pdata/gpseg6  40002   8       6       41002
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/pdata/gpseg7  40003   9       7       41003
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:---------------------------------------
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Greenplum Mirror Segment Configuration
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:---------------------------------------
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/mdata/gpseg0  50000   10      0       51000
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/mdata/gpseg1  50001   11      1       51001
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/mdata/gpseg2  50002   12      2       51002
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw2  /greenplum/gpdata/mdata/gpseg3  50003   13      3       51003
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/mdata/gpseg4  50000   14      4       51000
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/mdata/gpseg5  50001   15      5       51001
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/mdata/gpseg6  50002   16      6       51002
+20161027:22:35:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-sdw1  /greenplum/gpdata/mdata/gpseg7  50003   17      7       51003
+Continue with Greenplum creation Yy/Nn>
+y
+20161027:22:36:04:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Building the Master instance database, please wait...
+20161027:22:36:10:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Starting the Master in admin mode
+20161027:22:36:18:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing parallel build of primary segment instances
+20161027:22:36:18:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Spawning parallel processes    batch [1], please wait...
+........
+20161027:22:36:18:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Waiting for parallel processes batch [1], please wait...
+.............
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Parallel process exit status
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as completed           = 8
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as killed              = 0
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as failed              = 0
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Commencing parallel build of mirror segment instances
+20161027:22:36:31:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Spawning parallel processes    batch [1], please wait...
+........
+20161027:22:36:32:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Waiting for parallel processes batch [1], please wait...
+......
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Parallel process exit status
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as completed           = 8
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as killed              = 0
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Total processes marked as failed              = 0
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:------------------------------------------------
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Deleting distributed backout files
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Removing back out file
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-No errors generated from parallel processes
+20161027:22:36:38:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Restarting the Greenplum instance in production mode
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Starting gpstop with args: -a -i -m -d /greenplum/gpdata/master/gpseg-1
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Gathering information and validating the environment...
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Obtaining Greenplum Master catalog information
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Obtaining Segment details from master...
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Greenplum Version: 'postgres (Greenplum Database) 4.3.8.1 build 1'
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-There are 0 connections to the database
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Commencing Master instance shutdown with mode='immediate'
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Master host=mdw
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Commencing Master instance shutdown with mode=immediate
+20161027:22:36:38:057956 gpstop:mdw:gpadmin-[INFO]:-Master segment instance directory=/greenplum/gpdata/master/gpseg-1
+20161027:22:36:39:057956 gpstop:mdw:gpadmin-[INFO]:-Attempting forceful termination of any leftover master process
+20161027:22:36:39:057956 gpstop:mdw:gpadmin-[INFO]:-Terminating processes for segment /greenplum/gpdata/master/gpseg-1
+20161027:22:36:39:058043 gpstart:mdw:gpadmin-[INFO]:-Starting gpstart with args: -a -d /greenplum/gpdata/master/gpseg-1
+20161027:22:36:39:058043 gpstart:mdw:gpadmin-[INFO]:-Gathering information and validating the environment...
+20161027:22:36:39:058043 gpstart:mdw:gpadmin-[INFO]:-Greenplum Binary Version: 'postgres (Greenplum Database) 4.3.8.1 build 1'
+20161027:22:36:39:058043 gpstart:mdw:gpadmin-[INFO]:-Greenplum Catalog Version: '201310150'
+20161027:22:36:39:058043 gpstart:mdw:gpadmin-[INFO]:-Starting Master instance in admin mode
+20161027:22:36:40:058043 gpstart:mdw:gpadmin-[INFO]:-Obtaining Greenplum Master catalog information
+20161027:22:36:40:058043 gpstart:mdw:gpadmin-[INFO]:-Obtaining Segment details from master...
+20161027:22:36:41:058043 gpstart:mdw:gpadmin-[INFO]:-Setting new master era
+20161027:22:36:41:058043 gpstart:mdw:gpadmin-[INFO]:-Master Started...
+20161027:22:36:41:058043 gpstart:mdw:gpadmin-[INFO]:-Shutting down master
+20161027:22:36:42:058043 gpstart:mdw:gpadmin-[INFO]:-Commencing parallel primary and mirror segment instance startup, please wait...
+.. 
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-Process results...
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-----------------------------------------------------
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-   Successful segment starts                                            = 16
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-   Failed segment starts                                                = 0
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-   Skipped segment starts (segments are marked down in configuration)   = 0
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-----------------------------------------------------
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-Successfully started 16 of 16 segment instances 
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-----------------------------------------------------
+20161027:22:36:44:058043 gpstart:mdw:gpadmin-[INFO]:-Starting Master instance mdw directory /greenplum/gpdata/master/gpseg-1 
+20161027:22:36:45:058043 gpstart:mdw:gpadmin-[INFO]:-Command pg_ctl reports Master mdw instance active
+20161027:22:36:45:058043 gpstart:mdw:gpadmin-[INFO]:-No standby master configured.  skipping...
+20161027:22:36:45:058043 gpstart:mdw:gpadmin-[INFO]:-Database successfully started
+20161027:22:36:45:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Completed restart of Greenplum instance in production mode
+20161027:22:36:45:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Loading gp_toolkit...
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Scanning utility log file for any warning messages
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[WARN]:-*******************************************************
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[WARN]:-Scan of log file indicates that some warnings or errors
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[WARN]:-were generated during the array creation
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Please review contents of log file
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-/home/gpadmin/gpAdminLogs/gpinitsystem_20161027.log
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-To determine level of criticality
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-These messages could be from a previous run of the utility
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-that was called today!
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[WARN]:-*******************************************************
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Greenplum Database instance successfully created
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-------------------------------------------------------
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-To complete the environment configuration, please 
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-update gpadmin .bashrc file with the following
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-1. Ensure that the greenplum_path.sh file is sourced
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-2. Add "export MASTER_DATA_DIRECTORY=/greenplum/gpdata/master/gpseg-1"
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-   to access the Greenplum scripts for this instance:
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-   or, use -d /greenplum/gpdata/master/gpseg-1 option for the Greenplum scripts
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-   Example gpstate -d /greenplum/gpdata/master/gpseg-1
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Script log file = /home/gpadmin/gpAdminLogs/gpinitsystem_20161027.log
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-To remove instance, run gpdeletesystem utility
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-To initialize a Standby Master Segment for this Greenplum instance
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Review options for gpinitstandby
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-------------------------------------------------------
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-The Master /greenplum/gpdata/master/gpseg-1/pg_hba.conf post gpinitsystem
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-has been configured to allow all hosts within this new
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-array to intercommunicate. Any hosts external to this
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-new array must be explicitly added to this file
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-Refer to the Greenplum Admin support guide which is
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-located in the /home/gpadmin/greenplum-db/./docs directory
+20161027:22:36:46:018873 gpinitsystem:mdw:gpadmin-[INFO]:-------------------------------------------------------
+
+=========================================================================
+安装greenplum command center
+10
+[gpadmin@mdw ~]$ gpperfmon_install --enable --password gpadmin --port 5432
+[gpadmin@mdw gpseg-1]$ gpperfmon_install --enable --password gpadmin --port 5432
+20161027:23:41:24:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql -f /home/gpadmin/greenplum-db/./lib/gpperfmon/gpperfmon3.sql template1 >& /dev/null
+20161027:23:41:25:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql -f /home/gpadmin/greenplum-db/./lib/gpperfmon/gpperfmon4.sql gpperfmon >& /dev/null
+20161027:23:41:25:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql -f /home/gpadmin/greenplum-db/./lib/gpperfmon/gpperfmon41.sql gpperfmon >& /dev/null
+20161027:23:41:25:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql -f /home/gpadmin/greenplum-db/./lib/gpperfmon/gpperfmon42.sql gpperfmon >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql -f /home/gpadmin/greenplum-db/./lib/gpperfmon/gpperfmonC.sql template1 >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql template1 -c "DROP ROLE IF EXISTS gpmon"  >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 psql template1 -c "CREATE ROLE gpmon WITH SUPERUSER CREATEDB LOGIN ENCRYPTED PASSWORD 'gpadmin'"  >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-echo "local    gpperfmon         gpmon         md5" >> /greenplum/gpdata/master/gpseg-1/pg_hba.conf
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-echo "host     all         gpmon         127.0.0.1/28    md5" >> /greenplum/gpdata/master/gpseg-1/pg_hba.conf
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-touch /home/gpadmin/.pgpass >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-mv -f /home/gpadmin/.pgpass /home/gpadmin/.pgpass.1477582884 >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-echo "*:5432:gpperfmon:gpmon:gpadmin" >> /home/gpadmin/.pgpass
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-cat /home/gpadmin/.pgpass.1477582884 >> /home/gpadmin/.pgpass
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-chmod 0600 /home/gpadmin/.pgpass >& /dev/null
+20161027:23:41:26:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 gpconfig -c gp_enable_gpperfmon -v on >& /dev/null
+20161027:23:41:31:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 gpconfig -c gpperfmon_port -v 8888 >& /dev/null
+20161027:23:41:37:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 gpconfig -c gp_external_enable_exec -v on --masteronly >& /dev/null
+20161027:23:41:42:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-PGPORT=5432 gpconfig -c gpperfmon_log_alert_level -v warning >& /dev/null
+20161027:23:41:47:061535 gpperfmon_install:mdw:gpadmin-[INFO]:-gpperfmon will be enabled after a full restart of GPDB
+
+[gpadmin@mdw gpseg-1]$ gpstop -r
+
+[gpadmin@mdw gpseg-1]$  ps -ef | grep gpmmon |grep -v grep
+[gpadmin@mdw gpseg-1]$  psql gpperfmon -c 'SELECT* FROM system_now;'
+        ctime        | hostname |  mem_total   |  mem_used  | mem_actual_used | mem_actual_free |  swap_total  | swap_used | swap_page_in | swap_page_out | cpu_user | cpu_sys | cpu_idle | load0 | load1 | load2 | quantum | disk_ro_rate | disk_wo_rate | disk_rb_rate | dis
+k_wb_rate | net_rp_rate | net_wp_rate | net_rb_rate | net_wb_rate 
+---------------------+----------+--------------+------------+-----------------+-----------------+--------------+-----------+--------------+---------------+----------+---------+----------+-------+-------+-------+---------+--------------+--------------+--------------+----
+----------+-------------+-------------+-------------+-------------
+ 2016-10-27 23:45:00 | sdw2     | 135221342208 | 4377030656 |      1433513984 |    133787828224 | 107374174208 |         0 |            0 |             0 |        0 |    0.01 |    99.99 |  0.23 |  0.08 |  0.03 |      15 |            0 |           35 |            0 |    
+  1131704 |          10 |           8 |        3008 |        3409
+ 2016-10-27 23:45:00 | mdw      | 135221342208 | 1919033344 |      1333649408 |    133887692800 | 107374174208 |         0 |            0 |             0 |        0 |    0.02 |    99.98 |  0.15 |  0.17 |  0.29 |      15 |            0 |           10 |            0 |    
+   271749 |           7 |           7 |        2055 |        1094
+ 2016-10-27 23:45:00 | sdw1     | 135221342208 | 4314456064 |      1315659776 |    133905682432 | 107374174208 |         0 |            0 |             0 |        0 |    0.02 |    99.98 |  0.11 |  0.04 |  0.01 |      15 |            0 |           40 |            0 |    
+  1067107 |           9 |           8 |        3000 |        3365
+(3 rows)
+
+
+
+[root@mdw GreenplumCommandCenter]# unzip greenplum-cc-web-2.2.0-build-21-RHEL5-x86_64.zip 
+[root@mdw GreenplumCommandCenter]# ./greenplum-cc-web-2.2.0-build-21-RHEL5-x86_64.bin 
+
+********************************************************************************
+Do you accept the Pivotal Greenplum Database end user license
+agreement? [yes | no]
+********************************************************************************
+
+yes
+
+********************************************************************************
+Provide the installation path for Greenplum Command Center or 
+press ENTER to accept the default installation path: /usr/local/greenplum-cc-web-2.2.0-build-21
+********************************************************************************
+
+/home/gpadmin/greenplum-cc-web-2.2.0-build-21
+
+********************************************************************************
+Install Greenplum Command Center into </home/gpadmin/greenplum-cc-web-2.2.0-build-21>? [yes | no]
+********************************************************************************
+
+yes
+
+********************************************************************************
+/home/gpadmin/greenplum-cc-web-2.2.0-build-21 does not exist.
+Create /home/gpadmin/greenplum-cc-web-2.2.0-build-21 ? [ yes | no ]
+(Selecting no will exit the installer)
+********************************************************************************
+
+yes
+
+Extracting product to /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+
+
+********************************************************************************
+Installation complete.
+Greenplum Command Center is installed in /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+
+To complete the environment configuration, please ensure that the
+gpcc_path.sh file is sourced.
+********************************************************************************
+
+
+
+[root@mdw GreenplumCommandCenter]# cd /home/gpadmin
+[root@mdw gpadmin]# ll
+total 589324
+-rw-rw-r--  1 gpadmin gpadmin       521 Oct 27 21:39 checknetwork.out
+drwxrwxr-x  2 gpadmin gpadmin      4096 Oct 27 23:41 gpAdminLogs
+lrwxrwxrwx  1 root    root           45 Oct 27 23:53 greenplum-cc-web -> /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+drwxr-xr-x 10 root    root         4096 Oct 27 23:53 greenplum-cc-web-2.2.0-build-21
+lrwxrwxrwx  1 gpadmin gpadmin        22 Oct 27 18:18 greenplum-db -> ./greenplum-db-4.3.8.1
+drwxrwxr-x 12 gpadmin gpadmin      4096 Oct 27 18:39 greenplum-db-4.3.8.1
+-rwxr-xr-x  1 gpadmin gpadmin 143791566 Oct 27 18:09 greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin
+-rw-r--r--  1 gpadmin gpadmin 459653120 Oct 27 19:42 greenplum-db-4.3.8.1.tar
+[root@mdw gpadmin]# chown gpadmin:gpadmin -R greenplum-cc-web*
+[root@mdw gpadmin]# ll
+total 589324
+-rw-rw-r--  1 gpadmin gpadmin       521 Oct 27 21:39 checknetwork.out
+drwxrwxr-x  2 gpadmin gpadmin      4096 Oct 27 23:41 gpAdminLogs
+lrwxrwxrwx  1 gpadmin gpadmin        45 Oct 27 23:53 greenplum-cc-web -> /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+drwxr-xr-x 10 gpadmin gpadmin      4096 Oct 27 23:53 greenplum-cc-web-2.2.0-build-21
+lrwxrwxrwx  1 gpadmin gpadmin        22 Oct 27 18:18 greenplum-db -> ./greenplum-db-4.3.8.1
+drwxrwxr-x 12 gpadmin gpadmin      4096 Oct 27 18:39 greenplum-db-4.3.8.1
+-rwxr-xr-x  1 gpadmin gpadmin 143791566 Oct 27 18:09 greenplum-db-4.3.8.1-build-1-RHEL5-x86_64.bin
+-rw-r--r--  1 gpadmin gpadmin 459653120 Oct 27 19:42 greenplum-db-4.3.8.1.tar
+
+[root@mdw gpadmin]# vi ~/.bashrc
+
+source /home/gpadmin/greenplum-cc-web/gpcc_path.sh
+
+
+
+[root@mdw greenplum-cc-web]# gpccinstall -f /home/gpadmin/greenplum-db/gpconfigs/all_hosts
+20161028:00:04:09:064633 gpccinstall:mdw:root-[INFO]:-Installation Info:
+link_name greenplum-cc-web
+binary_path /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+binary_dir_location /home/gpadmin
+binary_dir_name greenplum-cc-web-2.2.0-build-21
+rm -f /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar; rm -f /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar.gz
+cd /home/gpadmin; tar cf greenplum-cc-web-2.2.0-build-21.tar greenplum-cc-web-2.2.0-build-21
+gzip /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): mkdir -p /home/gpadmin
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): mkdir -p /home/gpadmin
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): mkdir -p /home/gpadmin
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): rm -rf /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): rm -rf /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+20161028:00:04:12:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): rm -rf /home/gpadmin/greenplum-cc-web-2.2.0-build-21
+20161028:00:04:13:064633 gpccinstall:mdw:root-[INFO]:-scp software to remote location
+20161028:00:04:13:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): gzip -f -d /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar.gz
+20161028:00:04:13:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): gzip -f -d /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar.gz
+20161028:00:04:13:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): gzip -f -d /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar.gz
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): cd /home/gpadmin; tar xf greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): cd /home/gpadmin; tar xf greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): cd /home/gpadmin; tar xf greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): rm -f /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): rm -f /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:14:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): rm -f /home/gpadmin/greenplum-cc-web-2.2.0-build-21.tar
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (mdw): cd /home/gpadmin; rm -f greenplum-cc-web; ln -fs greenplum-cc-web-2.2.0-build-21 greenplum-cc-web
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw1): cd /home/gpadmin; rm -f greenplum-cc-web; ln -fs greenplum-cc-web-2.2.0-build-21 greenplum-cc-web
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-runPoolCommand on (sdw2): cd /home/gpadmin; rm -f greenplum-cc-web; ln -fs greenplum-cc-web-2.2.0-build-21 greenplum-cc-web
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-Verifying installed software versions
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-remote command: . /home/gpadmin/greenplum-cc-web/./gpcc_path.sh; /home/gpadmin/greenplum-cc-web/./bin/gpcmdr --version
+20161028:00:04:15:064633 gpccinstall:mdw:root-[INFO]:-remote command: . /home/gpadmin/greenplum-cc-web-2.2.0-build-21/gpcc_path.sh; /home/gpadmin/greenplum-cc-web-2.2.0-build-21/bin/gpcmdr --version
+20161028:00:04:20:064633 gpccinstall:mdw:root-[INFO]:-SUCCESS -- Requested commands completed
+
+
+三个节点都执行
+chown gpadmin:gpadmin /home/gpadmin/* -R
+
+
+
+
+gpcmdr --setup
+
+
+Failed to setup Command Center instance gpcc: Exception encountered while fetching GPDB version info Connection error for query select version();: FATAL:  no pg_hba.conf entry for host "::1", user "gpmon", database "gpperfmon", SSL off
+=========================================================================
+
+[gpadmin@mdw greenplum-db]$ pg_ctl reload -D /greenplum/gpdata/master/gpseg-1/
+
+=========================================================================
+
+
+
+
+使用gpadmin创建schema
+create schema sdata;
+create schema ods;
+create schema pdm;
+create schema summ;
+create schema mart;
+
+alter schema sdata owner  to etl_gp;
+alter schema ods owner  to etl_gp;
+alter schema pdm owner  to etl_gp;
+alter schema summ owner  to etl_gp;
+alter schema mart owner  to etl_gp;
+
+
+
+grant all on schema sdata to etl_gp;
+grant all on schema ods to etl_gp;
+grant all on schema pdm to etl_gp;
+grant all on schema summ to etl_gp;
+grant all on schema mart to etl_gp;
+
+
+grant usage on schema sdata to etl_gp;
+grant usage on schema ods to etl_gp;
+grant usage on schema pdm to etl_gp;
+grant usage on schema summ to etl_gp;
+grant usage on schema mart to etl_gp;
+
+
+
+=========================================================================
+ETL用户环境变量
+
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/bin
+
+export PATH
+
+source /usr/local/greenplum-db-4.3.7.3/greenplum_path.sh
+
+export LD_LIBRARY_PATH=/usr/local/lib
+
+export ORACLE_HOME=/usr/lib/oracle/11.2/client64
+export PATH=$ORACLE_HOME/bin:$PATH  
+export TNS_ADMIN=$ORACLE_HOME/network/admin  
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH   
+export NLS_LANG='AMERICAN_AMERICA.ZHS16GBK'
+
+source /usr/local/greenplum-connectivity-4.3.5.2-build-1/greenplum_connectivity_path.sh
+
+export ODBCINI=/etc/odbc.ini
+
+export GDP_SCH_HOME="/home/ETL"
+export GDP_SRC_DAT_PATH="/home/ETL/LOAD_DATA/EDW"
+export GDP_SRC_MODE_CTL_PATH="/home/ETL/APP/EDW/CTL/MODE"
+export GDP_SRC_TMP_CTL_PATH="/home/ETL/APP/EDW/CTL/TMP"
+export GDP_SRC_YML_PATH="/home/ETL/APP/EDW/CTL/PUBLIC"
+export GDP_SRC_SDATA_PATH="/home/ETL/APP/SDATA"
+export GDP_SCH_ROOT_LOG_PATH="/home/ETL/log"
+export GP_HOST=mdw
+export GDP_DB=sjck_fb
+export GDP_AUTO_PUB_DB=PUBLIC
+export GDP_AUTO_WTL_DB=SDATA
+export GDP_AUTO_ODS_DB=ODS
+export GDP_AUTO_WML_DB=PDATA
+export GDP_AUTO_PSDATA_DB=PSDATA
+export GDP_AUTO_PMART_COAMC_DB=PMART_COAMC
+export GDP_AUTO_PMART_FAM_DB=PMART_FAM
+export GDP_AUTO_WMLVIEW_DB=PVIEW
+export GDP_AUTO_PCONFIG_DB=PCONFIG
+export GDP_LOAD_HOST=172.16.10.223
+export GDP_LOAD_HOST_PORT=8000
+export S06_DATE_MON=15
+export GP_LOAD_USER=etl_gp
+
+export JAVA_HOME=/usr/local/java/jdk1.8.0_101
+export JRE_HOME=$JAVA_HOME/jre
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+
+export TOMCAT_HOME=/home/etl/apache-tomcat-7.0.47
+export CATALINA_HOME=/home/etl/apache-tomcat-7.0.47
+
+=========================================================================
+
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/bin
+
+export PATH
+
+source /usr/local/greenplum-db-4.3.7.3/greenplum_path.sh
+
+export LD_LIBRARY_PATH=/usr/local/lib
+
+export ORACLE_HOME=/usr/lib/oracle/11.2/client64
+export PATH=$ORACLE_HOME/bin:$PATH  
+export TNS_ADMIN=$ORACLE_HOME/network/admin  
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH   
+export NLS_LANG='AMERICAN_AMERICA.ZHS16GBK'
+
+source /usr/local/greenplum-connectivity-4.3.5.2-build-1/greenplum_connectivity_path.sh
+
+export ODBCINI=/etc/odbc.ini
+
+export GDP_SCH_HOME="/home/ETL"
+export GDP_SRC_DAT_PATH="/home/ETL/LOAD_DATA/EDW"
+export GDP_SRC_MODE_CTL_PATH="/home/ETL/APP/EDW/CTL/MODE"
+export GDP_SRC_TMP_CTL_PATH="/home/ETL/APP/EDW/CTL/TMP"
+export GDP_SRC_YML_PATH="/home/ETL/APP/EDW/CTL/PUBLIC"
+export GDP_SRC_SDATA_PATH="/home/ETL/APP/SDATA"
+export GDP_SCH_ROOT_LOG_PATH="/home/ETL/log"
+export GP_HOST=mdw
+export GDP_DB=sjck_fb
+export GDP_AUTO_PUB_DB=PUBLIC
+export GDP_AUTO_WTL_DB=SDATA
+export GDP_AUTO_ODS_DB=ODS
+export GDP_AUTO_WML_DB=PDATA
+export GDP_AUTO_PSDATA_DB=PSDATA
+export GDP_AUTO_PMART_COAMC_DB=PMART_COAMC
+export GDP_AUTO_PMART_FAM_DB=PMART_FAM
+export GDP_AUTO_WMLVIEW_DB=PVIEW
+export GDP_AUTO_PCONFIG_DB=PCONFIG
+export GDP_LOAD_HOST=172.16.10.223
+export GDP_LOAD_HOST_PORT=8000
+export S06_DATE_MON=15
+export GP_LOAD_USER=etl_gp
+
+export JAVA_HOME=/usr/local/java/jdk1.8.0_101
+export JRE_HOME=$JAVA_HOME/jre
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+
+export TOMCAT_HOME=/home/etl/apache-tomcat-7.0.47
+export CATALINA_HOME=/home/etl/apache-tomcat-7.0.47
+=========================================================================
+
+
+
+
+
+
+200 PORT command successful. Consider using PASV. 553 Could not create file.
+
+setsebool ftpd_full_access on
+setsebool ftpd_use_passive_mode on
+setsebool ftpd_home_dir on
+
+
+
+
+=========================================================================
+Greenplum
+IP：172.16.18.10
+用户：etl_gp
+密码：gp123
+数据目录：/data/srcdata（13）
+
+Oracle初始化
+
+sqlplus / as sysdba
+tnsname.ora
+/u01/app/oracle/product/11.2/db_1/network/admin/tnsnames.ora
+ORCL =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ETLServer)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = ORCL)
+    )
+  )
+
+
+create tablespace fbzl datafile '/data/oradata/ORCL/fbzl001.dbf' size 30G autoextend off;
+alter tablespace fbzl add datafile '/data/oradata/ORCL/fbzl002.dbf' size 30G autoextend off;
+alter tablespace fbzl add datafile '/data/oradata/ORCL/fbzl003.dbf' size 30G autoextend off;
+
+create tablespace schedule datafile '/data/oradata/ORCL/schedule001.dbf' size 10G autoextend off;
+create user fbzl identified by fbzl
+default tablespace fbzl
+temporary tablespace temp;
+
+grant dba to fbzl;
+
+select table_name from user_tables
+where table_name not like '%2016%';
+tablename_19000101
+
+
+
+
+
+
+
+create tablespace schedule datafile '/data/oradata/ORCL/schedule001.dbf' size 10G autoextend on;
+
+create user schedule identified by schedule default tablespace schedule temporary tablespace temp;
+
+grant dba to schedule; 
+
+
+
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================
+=========================================================================

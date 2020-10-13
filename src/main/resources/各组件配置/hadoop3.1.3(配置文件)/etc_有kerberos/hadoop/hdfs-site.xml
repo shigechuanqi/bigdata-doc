@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?><!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+--><!-- Put site-specific property overrides in this file. --><configuration>
+<!-- 指定hdfs的nameservice需要和core-site.xml中的保持一致 -->
+<property>
+  <name>dfs.nameservices</name>
+  <value>bigdata</value>
+</property>
+
+<!-- bigdata下面有两个NameNode，分别是nn1，nn2 -->
+<property>
+  <name>dfs.ha.namenodes.bigdata</name>
+  <value>nn1,nn2</value>
+</property>
+
+<!-- nn1的RPC通信地址 -->
+<property>
+  <name>dfs.namenode.rpc-address.bigdata.nn1</name>
+  <value>mdw1:9001</value>
+</property>
+<!-- nn1的http通信地址 -->
+<property>
+  <name>dfs.namenode.http-address.bigdata.nn1</name>
+  <value>mdw1:50070</value>
+</property>
+
+<!-- nn2的RPC通信地址 -->
+<property>
+  <name>dfs.namenode.rpc-address.bigdata.nn2</name>
+  <value>sdw1:9001</value>
+</property>
+<!-- nn2的http通信地址 -->
+<property>
+  <name>dfs.namenode.http-address.bigdata.nn2</name>
+  <value>sdw1:50070</value>
+</property>
+
+<!-- 指定NameNode的edits元数据在JournalNode上的存放位置 -->
+<property>
+  <name>dfs.namenode.shared.edits.dir</name>
+  <value>qjournal://mdw1:8485;sdw1:8485;sdw2:8485/bigdata</value>
+</property>
+
+<!-- 指定JournalNode在本地磁盘存放数据的位置 -->
+<property>
+  <name>dfs.journalnode.edits.dir</name>
+  <value>/opt/data/journaldata</value>
+</property>
+
+<!-- 开启NameNode失败自动切换 -->
+<property>
+  <name>dfs.ha.automatic-failover.enabled</name>
+  <value>true</value>
+</property>
+
+<!-- 配置失败自动切换实现方式 -->
+<property>
+  <name>dfs.client.failover.proxy.provider.bigdata</name>
+  <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+</property>
+
+<!-- 配置隔离机制方法，多个机制用换行分割，即每个机制暂用一行-->
+<!-- 其中shell(/bin/true) 表示可执行一个脚本  比如 shell(/app/yunwei/hadoop_fence.sh) -->
+<property>
+  <name>dfs.ha.fencing.methods</name>
+  <value>
+    sshfence
+    shell(/bin/true)
+  </value>
+</property>
+
+<!-- 使用sshfence隔离机制时需要ssh免登陆 -->
+<property>
+  <name>dfs.ha.fencing.ssh.private-key-files</name>
+  <value>/home/hdfs/.ssh/id_rsa</value>
+</property>
+
+<!-- 配置sshfence隔离机制超时时间 单位：毫秒 -->
+<property>
+  <name>dfs.ha.fencing.ssh.connect-timeout</name>
+  <value>50000</value>
+</property>
+
+<property>
+ <name>dfs.namenode.name.dir</name>
+ <value>file:///opt/data/dfs/name</value>
+</property>
+
+<property>
+ <name>dfs.replication</name>
+  <!-- 备份次数 -->
+ <value>2</value>
+</property>
+
+<property>
+ <name>dfs.datanode.data.dir</name>
+ <value>/opt/data/dfs/data1</value>
+</property>
+<property>
+ <name>dfs.blocksize</name>
+ <value>128m</value>
+</property>
+
+
+
+<!-- Short Circuit Local Reads -->
+<property>
+    <name>dfs.client.read.shortcircuit</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dfs.domain.socket.path</name>
+    <value>/var/lib/hadoop-hdfs/dn_socket</value>
+ </property>
+
+<!-- namenode kerberos config -->
+<property>
+        <name>dfs.block.access.token.enable</name>
+        <value>true</value>
+    </property>
+<property>
+        <name>dfs.namenode.kerberos.principal</name>
+        <value>nn/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.namenode.keytab.file</name>
+        <value>/opt/keytab/nn.keytab</value>
+    </property>
+<property>
+        <name>dfs.namenode.kerberos.internal.spnego.principal</name>
+        <value>HTTP/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.https.port</name>
+        <value>50470</value>
+    </property>
+<property>
+        <name>dfs.https.address</name>
+        <value>0.0.0.0:50470</value>
+    </property>
+
+
+
+<!-- namenode https config -->
+<property>
+        <name>dfs.http.policy</name>
+        <value>HTTPS_ONLY</value>
+    </property>
+<property>
+        <name>dfs.namenode.https-address</name>
+        <value>0.0.0.0:9871</value>
+    </property>
+<property>
+        <name>dfs.https.enable</name>
+        <value>true</value>
+    </property>
+<property>
+        <name>ssl.server.keystore.location</name>
+        <value>/opt/keytab/keystore/keystore.jks</value>
+    </property>
+
+
+<!-- Secondary NameNode kerberos config -->
+<property>
+        <name>dfs.namenode.secondary.http-address</name>
+        <value>0.0.0.0:9868</value>
+    </property>
+<property>
+        <name>dfs.namenode.secondary.https-address</name>
+        <value>0.0.0.0:9869</value>
+    </property>
+<property>
+        <name>dfs.secondary.namenode.keytab.file</name>
+        <value>/opt/keytab/sn.keytab</value>
+    </property>
+<property>
+        <name>dfs.secondary.namenode.kerberos.principal</name>
+        <value>sn/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.secondary.namenode.kerberos.internal.spnego.principal</name>
+        <value>HTTP/_HOST@HADOOP.COM</value>
+    </property>
+
+<!-- JournalNode kerberos config -->
+<property>
+        <name>dfs.journalnode.kerberos.principal</name>
+        <value>jn/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.journalnode.keytab.file</name>
+        <value>/opt/keytab/jn.keytab</value>
+    </property>
+<property>
+        <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
+        <value>HTTP/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.journalnode.https-address</name>
+        <value>0.0.0.0:8481</value>
+    </property>
+
+<!-- DATANODE kerberos CONFIG -->
+<property>
+        <name>dfs.datanode.data.dir.perm</name>
+        <value>700</value>
+    </property>
+<property>
+        <name>dfs.datanode.kerberos.principal</name>
+        <value>dn/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.datanode.keytab.file</name>
+        <value>/opt/keytab/dn.keytab</value>
+    </property>
+
+<property>
+        <name>dfs.datanode.address</name>
+        <value>0.0.0.0:9866</value>
+    </property>
+<property>
+        <name>dfs.datanode.http.address</name>
+        <value>0.0.0.0:9864</value>
+    </property>
+<property>
+        <name>dfs.data.transfer.protection</name>
+        <value>integrity</value>
+    </property>
+<property>
+     <name>dfs.permissions.supergroup</name>
+     <value>supergroup</value>
+     <description>The name of the group of super-users.</description>
+</property>
+
+<!-- WebHDFS kerberos CONFIG -->
+<property>
+        <name>dfs.web.authentication.kerberos.principal</name>
+        <value>HTTP/_HOST@HADOOP.COM</value>
+    </property>
+<property>
+        <name>dfs.web.authentication.kerberos.keytab</name>
+        <value>/opt/keytab/HTTP.keytab</value>
+    </property>
+
+
+<property>
+        <name>dfs.permissions.enabled</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.permissions</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.namenode.inode.attributes.provider.class</name>
+        <value>org.apache.ranger.authorization.hadoop.RangerHdfsAuthorizer</value>
+    </property>
+    <property>
+        <name>dfs.permissions.ContentSummary.subAccess</name>
+        <value>true</value>
+    </property>
+
+
+</configuration>

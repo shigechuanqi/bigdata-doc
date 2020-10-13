@@ -1,0 +1,318 @@
+
+##参考资料##
+https://prestosql.github.io/presto-yarn/installation-yarn-configuration-options.html
+
+1.需要准备软件
+hadoop 3.1.3 #已经安装
+hive 3.1.2 #已经安装
+kerberos #已启用
+ranger 2.0.0 #已安装
+zookeeper #已安装
+Apache Maven 3.6.1 #已安装
+
+
+jdk 1.11 #只作为presto-343运行使用
+jdk 1.8 #编译环境
+presto-yarn #https://github.com/prestosql/presto-yarn  最新版本分支master  <version>1.6-SNAPSHOT</version>
+presto 343 #可不用下载,编译presto-yarn的时候会自动下载
+slider 0.92.0-incubating #选在最新版本源码 https://github.com/apache/incubator-retired-slider.git
+https://archive.apache.org/dist/incubator/slider/0.92.0-incubating/apache-slider-0.92.0-incubating-source-release.tar.gz
+
+
+
+2.编译presto-yarn
+github 下载 presto-yarn-master.zip
+>unzip presto-yarn-master.zip
+>cd presto-yarn-master
+>vi pom.xml
+##修改<presto.version>xxx</presto.version>修改为 343
+##删除<module>presto-yarn-test</module>
+>mvn clean package -Dpresto.version=343
+>ll
+total 32
+-rwxr-xr-x. 1 root root 7112 Jul  7 17:19 mvnw
+-rw-r--r--. 1 root root 6515 Sep 29 14:11 pom.xml
+drwxr-xr-x. 4 root root 4096 Sep 29 14:11 presto-yarn-docs
+drwxr-xr-x. 4 root root 4096 Sep 29 14:11 presto-yarn-package
+drwxr-xr-x. 5 root root 4096 Jul  7 17:19 presto-yarn-test
+-rw-r--r--. 1 root root 2483 Jul  7 17:19 README.md
+>ll presto-yarn-package/target/
+total 444900
+drwxr-xr-x. 2 root root      4096 Sep 29 14:11 archive-tmp
+drwxr-xr-x. 2 root root      4096 Sep 29 14:11 classes
+drwxr-xr-x. 2 root root      4096 Sep 29 14:11 dep-package-tmp
+drwxr-xr-x. 2 root root      4096 Sep 29 14:11 maven-archiver
+drwxr-xr-x. 3 root root      4096 Sep 29 14:11 presto-yarn-package-1.6-SNAPSHOT-343
+-rw-r--r--. 1 root root 455530668 Sep 29 14:11 presto-yarn-package-1.6-SNAPSHOT-343.zip  #这就是我们需要的包,里边包含了presto-server
+-rw-r--r--. 1 root root      2667 Sep 29 14:11 presto-yarn-package-1.6-SNAPSHOT.jar
+-rw-r--r--. 1 root root      6900 Sep 29 14:11 presto-yarn-package-1.6-SNAPSHOT-tests.jar
+drwxr-xr-x. 3 root root      4096 Sep 29 14:11 slider-filtered-files
+drwxr-xr-x. 2 root root      4096 Sep 29 14:11 test-classes
+
+
+
+3.编译slider
+下载 https://archive.apache.org/dist/incubator/slider/0.92.0-incubating/apache-slider-0.92.0-incubating-source-release.tar.gz
+>tar -zxvf apache-slider-0.92.0-incubating-source-release.tar.gz
+>cd apache-slider-0.92.0-incubating
+>vi pom.xml
+#<project.java.src.version>1.8</project.java.src.version> 修改为当前jdk版本 1.8
+#<hadoop.version>2.7.1</hadoop.version>版本这里改为3.1.3会编译失败,可以不改
+>mvn clean package -DskipTests
+>ll
+total 148
+drwxr-xr-x. 18 root root  4096 Sep 29 15:40 app-packages
+drwxr-xr-x.  2 root root  4096 Sep 29 15:33 bin
+-rw-r--r--.  1 root root 13436 Mar 10  2017 DEPENDENCIES
+-rw-r--r--.  1 root root   532 Mar 10  2017 DISCLAIMER
+-rw-r--r--.  1 root root 21915 Mar 10  2017 LICENSE
+-rw-r--r--.  1 root root   167 Mar 10  2017 NOTICE
+-rw-r--r--.  1 root root 60128 Sep 29 15:36 pom.xml
+-rw-r--r--.  1 root root  5598 Mar 10  2017 README.md
+drwxr-xr-x.  5 root root  4096 Sep 29 15:39 slider-agent
+drwxr-xr-x.  4 root root  4096 Sep 29 15:39 slider-assembly
+drwxr-xr-x.  4 root root  4096 Sep 29 15:38 slider-core
+drwxr-xr-x.  4 root root  4096 Sep 29 15:40 slider-funtest
+drwxr-xr-x.  4 root root  4096 Mar 10  2017 src
+drwxr-xr-x.  3 root root  4096 Sep 29 15:37 target
+>ll slider-assembly/target/
+total 265160
+drwxr-xr-x. 2 root root      4096 Sep 29 15:39 agent
+drwxr-xr-x. 2 root root      4096 Sep 29 15:39 archive-tmp
+drwxr-xr-x. 2 root root      4096 Sep 29 15:39 lib
+drwxr-xr-x. 3 root root      4096 Sep 29 15:39 maven-shared-archive-resources
+drwxr-xr-x. 2 root root      4096 Sep 29 15:39 python-src
+drwxr-xr-x. 3 root root      4096 Sep 29 15:39 python-test
+drwxr-xr-x. 3 root root      4096 Sep 29 15:40 slider-0.92.0-incubating-all
+-rw-r--r--. 1 root root 106164061 Sep 29 15:40 slider-0.92.0-incubating-all.tar.gz #编译成功的包
+-rw-r--r--. 1 root root 112404561 Sep 29 15:40 slider-0.92.0-incubating-all.zip
+-rw-r--r--. 1 root root  52921023 Sep 29 15:39 slider-dependency.tar.gz
+
+
+4.安装slider
+>su - hive
+>tar -zxvf slider-0.92.0-incubating-all.tar.gz -C /opt
+>cd /opt
+>ln -s slider-0.92.0-incubating slider
+>cd slider
+>ll
+total 76
+drwxr-xr-x. 3 hive hadoop  4096 Sep 29 16:42 agent
+drwxr-xr-x. 2 hive hadoop  4096 Sep 29 15:33 bin
+drwxr-xr-x. 2 hive hadoop  4096 Sep 29 15:33 conf
+-rw-r--r--. 1 hive hadoop 20182 Sep 29 15:39 DEPENDENCIES
+-rw-r--r--. 1 hive hadoop   532 Mar 10  2017 DISCLAIMER
+drwxr-xr-x. 2 hive hadoop  4096 Sep 29 16:42 lib
+-rw-r--r--. 1 hive hadoop 21915 Mar 10  2017 LICENSE
+-rw-r--r--. 1 hive hadoop   167 Mar 10  2017 NOTICE
+-rw-r--r--. 1 hive hadoop  5598 Mar 10  2017 README.md
+>vi conf/slider-env.sh
+export JAVA_HOME=/usr/local/jdk1.8.0_181
+export HADOOP_CONF_DIR=/opt/hadoop-3.1.3/etc/hadoop
+#使用hive的kerberos连接ZK配置
+export JVMFLAGS="$JVMFLAGS -Djava.security.auth.login.config=/opt/hive/conf/client-jaas.conf"
+
+
+>vi conf/slider-client.xml
+
+<property><name>slider.client.resource.origin</name><value>conf/slider-client.xml</value><description>This is just for diagnostics</description></property>
+
+<property><name>slider.security.protocol.acl</name><value>*</value><description>When security is enabled, set appropriate acl. Default value means allow everyone.</description></property>
+<property><name>slider.yarn.queue</name><value>default</value> <description>the name of the YARN queue to use.</description></property>
+<property><name>slider.yarn.queue.priority</name><value>1</value><description>the priority of the application.</description></property>
+<property><name>slider.am.login.keytab.required</name><value>true</value><description>Declare that a keytab must be provided.</description></property>
+
+<property><name>slider.hdfs.keytab.dir</name><value>/user/hive/.slider/keytabs</value></property>
+<property><name>slider.am.keytab.local.path</name><value>/opt/hive/conf/keytab/hive.keytab</value></property>
+<property><name>slider.keytab.principal.name</name><value>hive/_HOST@HADOOP.COM</value></property>
+<property><name>site.global.security_enabled</name><value>true</value></property>
+<property><name>dfs.namenode.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+<property><name>dfs.datanode.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+<property><name>dfs.datanode.keytab.file</name><value>/opt/hive/conf/keytab/hive.keytab</value></property>
+<property><name>dfs.namenode.keytab.file</name><value>/opt/hive/conf/keytab/hive.keytab</value></property>
+
+<property><name>fs.defaultFS</name><value>hdfs://bigdata/</value></property>
+
+>./bin/slider help
+
+
+5.配置presto-yarn参数
+>cd */presto-yarn-package-1.6-SNAPSHOT-343
+>mkdir -p /opt/hive/presto
+>cp appConfig-default.json /opt/hive/presto/appConfig.json
+>cp resources-default.json /opt/hive/presto/resources.json
+>cd ../presto-yarn-package-1.6-SNAPSHOT-343.zip /opt/hive/presto/
+>cd /opt/hive/presto/
+>[hive@mdw1 presto]$ ll
+total 444880
+-rw-r--r--. 1 hive hive      1471 Sep 29 19:24 appConfig.json
+-rw-r--r--. 1 hive hive 455530668 Sep 29 17:35 presto-yarn-package-1.6-SNAPSHOT-343.zip
+-rw-r--r--. 1 hive hive       606 Sep 29 18:53 resources.json
+>vi appConfig.json
+{
+  "schema": "http://example.org/specification/v2.0.0",
+  "metadata": {
+  },
+  "global": {
+    "site.global.app_user": "hive",
+    "site.global.user_group": "hadoop",
+    "site.global.data_dir": "/opt/hive/presto/data",
+    "site.global.config_dir": "/opt/hive/presto/etc",
+    "site.global.app_name": "presto-server-343",
+    "site.global.app_pkg_plugin": "${AGENT_WORK_ROOT}/app/definition/package/plugins/",
+    "site.global.singlenode": "false",
+    "site.global.coordinator_host": "${COORDINATOR_HOST}",
+    "site.global.presto_query_max_memory": "1GB",
+    "site.global.presto_query_max_memory_per_node": "600MB",
+    "site.global.presto_query_max_total_memory_per_node":  "600MB",
+    "site.global.presto_server_port": "8085",
+
+    "site.global.catalog": "{'tpch': ['connector.name=tpch']}",
+    "site.global.jvm_args": "['-server', '-Xmx1024M', '-XX:+UseG1GC', '-XX:G1HeapRegionSize=32M', '-XX:+UseGCOverheadLimit', '-XX:+ExplicitGCInvokesConcurrent', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:OnOutOfMemoryError=kill -9 %p']",
+    "site.global.log_properties": "['com.facebook.presto.hive=WARN',
+'com.facebook.presto.server=INFO']",
+
+    "application.def": ".slider/package/PRESTO/presto-yarn-package-1.6-SNAPSHOT-343.zip",
+    "java_home": "/opt/hive/jdk-11.0.8"
+  },
+  "components": {
+    "slider-appmaster": {
+      "jvm.heapsize": "1024M",
+      "slider.hdfs.keytab.dir": ".slider/keytabs",
+      "slider.am.login.keytab.name": "hive.keytab",
+      "slider.keytab.principal.name": "hive"
+    }
+  }
+}
+>vi resources.json
+{
+  "schema": "http://example.org/specification/v2.0.0",
+  "metadata": {
+  },
+  "global": {
+    "yarn.vcores": "1"
+  },
+  "components": {
+    "slider-appmaster": {
+    },
+    "COORDINATOR": {
+      "yarn.role.priority": "1",
+      "yarn.component.instances": "1",
+      "yarn.component.placement.policy": "1",
+      "yarn.memory": "1500",
+      "yarn.label.expression": "coordinator"
+    },
+    "WORKER": {
+      "yarn.role.priority": "2",
+      "yarn.component.instances": "1",
+      "yarn.component.placement.policy": "1",
+      "yarn.memory": "1500",
+      "yarn.label.expression": "worker"
+    }
+  }
+}
+
+
+6.yarn 增加label
+>vi yarn-site.xml
+<property>
+<name>yarn.node-labels.enabled</name>
+<value>true</value>
+</property>
+
+<property>
+<name>yarn.node-labels.manager-class</name>
+<value>org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager</value>
+</property>
+
+<property>
+<name>yarn.node-labels.fs-store.root-dir</name>
+<value>hdfs:///user/yarn/node-labels</value>
+<description></description>
+</property>
+
+>vi capacity-scheduler.xml
+<property><name>yarn.scheduler.capacity.default.minimum-user-limit-percent</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.maximum-am-resource-percent</name><value>0.2</value></property>
+<property><name>yarn.scheduler.capacity.maximum-applications</name><value>10000</value></property>
+<property><name>yarn.scheduler.capacity.node-locality-delay</name><value>40</value></property>
+
+<property><name>yarn.scheduler.capacity.root.accessible-node-labels</name><value>*</value></property>
+<property><name>yarn.scheduler.capacity.root.accessible-node-labels.coordinator.capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.accessible-node-labels.worker.capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.acl_administer_queue</name><value>*</value></property>
+<property><name>yarn.scheduler.capacity.root.capacity</name><value>100</value></property>
+
+<property><name>yarn.scheduler.capacity.root.default.accessible-node-labels</name><value>*</value></property>
+<property><name>yarn.scheduler.capacity.root.default.accessible-node-labels.coordinator.capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.default.accessible-node-labels.worker.capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.default.acl_administer_jobs</name><value>*</value></property>
+<property><name>yarn.scheduler.capacity.root.default.acl_submit_applications</name><value>*</value></property>
+<property><name>yarn.scheduler.capacity.root.default.capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.default.default-node-label-expression</name><value>worker</value></property>
+<property><name>yarn.scheduler.capacity.root.default.maximum-capacity</name><value>100</value></property>
+<property><name>yarn.scheduler.capacity.root.default.state</name><value>RUNNING</value></property>
+<property><name>yarn.scheduler.capacity.root.default.user-limit-factor</name><value>1</value></property>
+<property><name>yarn.scheduler.capacity.root.queues</name><value>default</value></property>
+
+
+
+yarn rmadmin -addToClusterNodeLabels coordinator,worker
+#节点添加标签
+yarn rmadmin -replaceLabelsOnNode mdw1:45454,coordinator
+yarn rmadmin -replaceLabelsOnNode sdw1:45454,worker
+yarn rmadmin -replaceLabelsOnNode sdw2:45454,worker
+#查看标签
+yarn node -status mdw1:45454
+#刷新配置
+yarn rmadmin -refreshQueues
+
+
+7.slider 添加keytab
+
+>./bin/slider keytab --install hive --folder .  --keytab /opt/hive/conf/keytab/hive.keytab
+
+>./bin/slider keytab --delete hive --folder .  --keytab /opt/hive/conf/keytab/hive.keytab
+
+8.启动任务
+#
+>./bin/slider package --install --name PRESTO --package /opt/hive/presto/presto-yarn-package-1.6-SNAPSHOT-343.zip
+#
+>./bin/slider create presto1 --template /opt/hive/presto/appConfig.json --resources /opt/hive/presto/resources.json
+
+
+# 管理 applicaiton
+bin/slider status presto1
+bin/slider start presto1
+bin/slider stop presto1
+
+# 查看 coordinator 部署在哪个节点，可以作为-- server 参数提供给 presto-cli 使用
+bin/slider registry --name presto1 --getexp presto
+
+# 销毁 applicaiton
+bin/slider destroy presto1 --force
+
+# 删除 presto-yarn-package
+bin/slider package --delete --name PRESTO
+
+# 动态调整 applicaiton，增加或删除 WORKER 数
+bin/slider presto1--component WORKER 2
+
+
+
+
+
+
+
+
+export JAVA_HOME=/opt/hive/jdk-11.0.8
+export CLASSPATH=.:${JAVA_HOME}/lib/tools.jar:${JAVA_HOME}/lib/dt.jar
+export PATH=${JAVA_HOME}/bin:$PATH
+
+
+
+
+
+
+
+

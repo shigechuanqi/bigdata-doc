@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?><!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<configuration>
+
+<!-- 默认执行引擎 -->
+<property><name>hive.execution.engine</name><value>mr</value></property>
+<property><name>mapreduce.job.queuename</name><value>default</value></property>
+<property><name>hive.async.log.enabled</name><value>false</value></property>
+
+<property><name>mapreduce.task.classpath.user.precedence</name><value>true</value></property>
+
+
+
+<!-- 调度方式 -->
+<property>
+<name>yarn.resourcemanager.scheduler.class</name>
+<value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>
+</property>
+
+
+<!-- 基础临时目录 -->
+<property><name>system:java.io.tmpdir</name><value>/opt/hive/tmp</value></property>
+
+<property><name>spark.yarn.jars</name><value>hdfs:///user/hive/expand_lib/spark_jars/*</value></property>
+<property><name>spark.home</name><value>/opt/hive/spark</value></property>
+<property><name>spark.master</name><value>yarn-cluster</value></property>
+
+<property><name>spark.yarn.driver.memoryOverhead</name><value>400MB</value></property>
+<property><name>spark.eventLog.enabled</name><value>true</value></property>
+<property><name>spark.eventLog.dir</name><value>hdfs:///tmp/spark_events</value></property>
+<property><name>spark.sql.adaptive.enabled</name><value>true</value></property>
+<property><name>spark.shuffle.service.enabled</name><value>true</value></property>
+<property><name>spark.dynamicAllocation.enabled</name><value>true</value></property>
+<property><name>spark.dynamicAllocation.minExecutors</name><value>1</value></property>
+<property><name>spark.dynamicAllocation.maxExecutors</name><value>10</value></property>
+<property><name>spark.dynamicAllocation.schedulerBacklogTimeout</name><value>1s</value></property>
+<property><name>spark.dynamicAllocation.sustainedSchedulerBacklogTimeout</name><value>5s</value></property>
+<property><name>spark.sql.adaptive.shuffle.targetPostShuffleInputSize</name><value>128000000</value></property>
+<property><name>spark.serializer</name><value>org.apache.spark.serializer.KryoSerializer</value></property>
+<property><name>spark.kryo.classesToRegister</name><value>org.apache.hadoop.hive.ql.io.HiveKey,org.apache.hadoop.io.BytesWritable,org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch</value></property>
+<property><name>spark.kryo.referenceTracking</name><value>false</value></property>
+<property><name>hive.spark.dynamic.partition.pruning</name><value>true</value></property>
+<property><name>hive.spark.dynamic.partition.pruning.map.join.only</name><value>true</value></property>
+<!-- 则Hive / Spark中的mapjoin优化将使用来自TableScan运算符的统计信息，该统计信息位于运算符树的根目录 -->
+<property><name>hive.spark.use.ts.stats.for.mapjoin</name><value>true</value></property>
+<!-- 如果将其设置为true，则Hive on Spark将为shuffle中的数据类型注册自定义序列化程序。这将减少数据的重排 -->
+<property><name>hive.spark.optimize.shuffle.serde</name><value>true</value></property>
+
+<!-- 在Spark DAG转换结束时合并小文件 -->
+<property><name>hive.merge.sparkfiles</name><value>true</value></property>
+
+
+
+
+
+<!-- zookeeper配置 -->
+<property><name>hive.zookeeper.quorum</name><value>mdw1:2181,sdw1:2181,sdw2:2181</value></property>
+<property><name>hive.zookeeper.client.port</name><value>2181</value></property>
+<property><name>hive.zookeeper.namespace</name><value>hiveserver2</value></property>
+
+
+<!-- 通过zk动态发现 -->
+<property><name>hive.server2.support.dynamic.service.discovery</name><value>true</value><description></description></property>
+
+<!-- 设置启用HS2交互式HA配置 -->
+<property><name>hive.server2.active.passive.ha.enable</name><value>true</value><description></description></property>
+
+<!-- metastore 元数据库设置 -->
+<property><name>hive.metastore.warehouse.dir</name><value>/user/hive/warehouse</value></property>
+<property><name>hive.metastore.warehouse.external.dir</name><value/></property>
+<property><name>hive.metastore.uris</name><value>thrift://mdw1:9083,thrift://sdw1:9083,thrift://sdw2:9083</value></property>
+<property><name>hive.metastore.port</name><value>9083</value></property>
+<property><name>hive.metastore.db.type</name><value>mysql</value></property>
+<property><name>javax.jdo.option.ConnectionDriverName</name><value>com.mysql.jdbc.Driver</value></property>
+<property><name>javax.jdo.option.ConnectionURL</name>
+<value>jdbc:mysql://172.16.10.220:3306/hive82db?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true&amp;rewriteBatchedStatements=true&amp;useSSL=false</value>
+</property>
+<property><name>javax.jdo.option.ConnectionUserName</name><value>hive</value></property>
+<property><name>javax.jdo.option.ConnectionPassword</name><value>hive</value></property>
+<property><name>hive.metastore.schema.verification</name><value>false</value></property>
+<property><name>hive.metastore.batch.retrieve.max</name><value>1000</value></property>
+
+<!-- hiveserve2 连接配置 -->
+<property><name>hive.server2.transport.mode</name><value>binary</value></property>
+<property><name>hive.server2.thrift.bind.host</name><value>localhost</value><description>set HIVE_SERVER2_THRIFT_BIND</description></property>
+<property><name>hive.server2.thrift.port</name><value>10001</value><description>set HIVE_SERVER2_THRIFT_PORT</description></property>
+
+
+<!-- Thrift工作线程的最小/最大数量 -->
+<property><name>hive.server2.thrift.min.worker.threads</name><value>1</value></property>
+<property><name>hive.server2.thrift.max.worker.threads</name><value>100</value></property>
+
+<!-- hiveserve2 log -->
+<property><name>hive.server2.logging.operation.enabled</name><value>true</value></property>
+<property><name>hive.server2.logging.operation.level</name><value>PERFORMANCE</value></property>
+<property><name>hive.server2.logging.operation.log.location</name><value>/opt/hive/tmp/operation_logs</value></property>
+
+<!-- hiveserve2 web 配置 -->
+<property><name>hive.server2.webui.host</name><value>0.0.0.0</value></property>
+<property><name>hive.server2.webui.port</name><value>10002</value></property>
+<property><name>hive.server2.thrift.client.user</name><value>hive</value></property>
+<property><name>hive.server2.thrift.client.password</name><value>hive</value></property>
+
+
+<!-- 安全模式 -->
+<property><name>hive.metastore.sasl.enabled</name><value>true</value></property>
+<property><name>hive.metastore.kerberos.keytab.file</name><value>/opt/hive/conf/keytab/hive.keytab</value></property>
+<property><name>hive.metastore.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+<property><name>hive.metastore.client.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+
+
+<property><name>hive.server2.enable.doAs</name><value>true</value></property>
+<property><name>hive.server2.authentication</name><value>KERBEROS</value></property>
+
+<property><name>hive.server2.authentication.kerberos.keytab</name><value>/opt/hive/conf/keytab/hive.keytab</value></property>
+<property><name>hive.server2.authentication.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+<property><name>hive.server2.authentication.client.kerberos.principal</name><value>hive/_HOST@HADOOP.COM</value></property>
+
+<property><name>hive.server2.authentication.spnego.keytab</name><value>/opt/hive/conf/keytab/HTTP.keytab</value></property>
+<property><name>hive.server2.authentication.spnego.principal</name><value>HTTP/_HOST@HADOOP.COM</value></property>
+
+
+<!--
+<property><name>hive.cluster.delegation.token.store.class</name><value>org.apache.hadoop.hive.thrift.ZooKeeperTokenStore</value></property>
+<property><name>hive.cluster.delegation.token.store.zookeeper.connectString</name><value>mdw1:2181,sdw1:2181,sdw2:2181</value></property>
+<property><name>hive.cluster.delegation.token.store.zookeeper.znode</name><value>/hive/cluster/delegation</value></property>
+<property><name>hive.cluster.delegation.token.store.zookeeper.acl</name><value>sasl:hive/mdw1@HADOOP.COM:cdrwa</value></property>
+-->
+
+
+
+<property><name>hive.exec.local.scratchdir</name><value>/opt/hive/tmp/local_scratchdir</value></property>
+<!-- Temporary local directory for added resources in the remote file system. -->
+<property><name>hive.downloaded.resources.dir</name><value>/opt/hive/tmp/resources/${hive.session.id}_resources</value></property>
+
+<!-- 临时目录及权限 -->
+<property><name>hive.exec.local.scratchdir</name><value>/opt/hive/tmp/${user.name}</value></property>
+<property><name>hive.scratch.dir.permission</name><value>700</value></property>
+
+<!-- 确定是否应在非本地模式下通过单独的jvm提交map/reduce作业 -->
+<property><name>hive.exec.submitviachild</name><value>false</value></property>
+
+<!-- 通过TRANSFORM或MAP或REDUCE构造调用的用户脚本中允许的最大序列化错误数 -->
+<property><name>hive.exec.script.maxerrsize</name><value>100000</value></property>
+
+<!-- 同sql并行查询 -->
+<property><name>hive.exec.parallel</name><value>true</value></property>
+<property><name>hive.exec.parallel.thread.number</name><value>2</value></property>
+
+
+<property><name>hive.exec.plan</name><value/></property>
+
+
+<!-- 执行日志是否在查询界面输出 -->
+<property><name>hive.log.explain.output</name><value>true</value></property>
+
+<property><name>hive.querylog.location</name><value>/opt/hive/tmp/querylog</value>
+<description>Location of Hive run time structured log file</description>
+</property>
+
+
+
+
+<!-- 此参数是全局变量，当在blobstore上运行时，它可以进行许多优化。如果将此变量设置为false，则不会使用 -->
+<property><name>hive.blobstore.optimizations.enabled</name><value>true</value></property>
+
+
+
+
+
+<!-- CREATE TABLE语句的默认文件格式 -->
+<property><name>hive.default.fileformat</name><value>ORC</value></property>
+<property><name>hive.default.fileformat.managed</name><value>ORC</value></property>
+<!-- 对ORC文件的参数还有很多 https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties#ConfigurationProperties-hive.server2.logging.operation.enabled -->
+<property><name>hive.exec.orc.memory.pool</name><value>0.5</value></property>
+<property><name>hive.orc.compute.splits.num.threads</name><value>20</value></property>
+<property><name>hive.orc.splits.include.file.footer</name><value>false</value></property>
+<property><name>hive.merge.orcfile.stripe.level</name><value>true</value></property>
+<!-- 损坏文件是否绕过,false表示提示异常 -->
+<property><name>hive.exec.orc.zerocopy</name><value>false</value></property>
+
+
+
+
+<!-- 加载数据文件时是否检查文件格式 -->
+<property><name>hive.fileformat.check</name><value>true</value></property>
+<!-- 用于查询中间结果的文件格式 -->
+<property><name>hive.query.result.fileformat</name><value>SequenceFile</value></property>
+
+<!-- map/reduce输出压缩 -->
+<property><name>hive.exec.compress.output</name><value>true</value></property>
+<property><name>mapred.output.compression.codec</name><value>org.apache.hadoop.io.compress.SnappyCodec</value></property>
+<property><name>mapred.output.compression.type</name><value>BLOCK</value></property>
+
+<!-- 任务中间压缩 -->
+<property><name>hive.exec.compress.intermediate</name><value>true</value></property>
+<property><name>hive.intermediate.compression.codec</name><value>org.apache.hadoop.io.compress.SnappyCodec</value></property>
+<property><name>hive.intermediate.compression.type</name><value>BLOCK</value></property>
+
+
+
+
+
+<!-- 启动越热功能 >
+<property><name>hive.prewarm.enabled</name><value>true</value></property>
+<property><name>hive.prewarm.numcontainers</name><value>2</value></property>
+-->
+
+
+<!-- 文件合并参数 -->
+<property><name>hive.input.format</name><value>org.apache.hadoop.hive.ql.io.CombineHiveInputFormat</value></property>
+
+<!-- 合并文件 -->
+<property><name>hive.merge.mapfiles</name><value>true</value></property>
+<property><name>hive.merge.mapredfiles</name><value>true</value></property>
+<property><name>hive.mergejob.maponly</name><value>true</value></property>
+
+<property><name>hive.merge.smallfiles.avgsize</name><value>16000000</value></property>
+<property><name>hive.merge.size.per.task</name><value>256000000</value></property>
+
+
+
+
+<!-- 启用mapjoin方式 -->
+<property><name>hive.auto.convert.join</name><value>true</value></property>
+<property><name>hive.auto.convert.join.noconditionaltask</name><value>true</value></property>
+<property><name>hive.auto.convert.join.noconditionaltask.size</name><value>894435328</value></property>
+
+
+<!-- 蜂巢优化复制 -->
+<property><name>hive.optimize.reducededuplication</name><value>true</value></property>
+<property><name>hive.optimize.reducededuplication.min.reducer</name><value>4</value></property>
+
+
+<!-- 启用CBO -->
+<property><name>hive.cbo.enable</name><value>true</value></property>
+<property><name>hive.stats.autogather</name><value>true</value></property>
+<property><name>hive.compute.query.using.stats</name><value>true</value></property>
+<property><name>hive.stats.fetch.column.stats</name><value>true</value></property>
+<property><name>hive.stats.fetch.partition.stats</name><value>true</value></property>
+
+<!-- 自动分区 -->
+<property><name>hive.exec.dynamic.partition</name><value>true</value></property>
+<property><name>hive.exec.dynamic.partition.mode</name><value>nonstrict</value></property>
+<property><name>hive.exec.max.dynamic.partitions</name><value>1000</value></property>
+<property><name>hive.exec.max.dynamic.partitions.pernode</name><value>100</value></property>
+<property><name>hive.optimize.sort.dynamic.partition</name><value>false</value></property>
+
+<property><name>hive.exec.max.created.files</name><value>100000</value></property>
+<property><name>hive.exec.default.partition.name</name><value>__HIVE_DEFAULT_PARTITION__</value></property>
+
+<property><name>hive.exec.drop.ignorenonexistent</name><value>true</value></property>
+
+<!-- 建表默认参数 -->
+<property><name>hive.table.parameters.default</name><value></value></property>
+
+<!-- 死亡进程的目录清理 -->
+<property><name>hive.scratchdir.lock</name><value>true</value></property>
+
+<!-- 如果表的存储/排序属性与分组键完全匹配，则是否 通过使用BucketizedHiveInputFormat在映射器中执行分组依据 -->
+<property><name>hive.map.groupby.sorted</name><value>true</value></property>
+
+<!-- 是否在GROUP BY中启用使用列位置别名 -->
+<property><name>hive.groupby.position.alias</name><value>true</value></property>
+<property><name>hive.orderby.position.alias</name><value>true</value></property>
+
+<!-- 没有group-by子句的聚合查询（例如 select count(*) from src）在单个reduce任务中执行最终聚合 -->
+<property><name>hive.fetch.task.aggr</name><value>false</value></property>
+<property><name>hive.map.aggr</name><value>true</value></property>
+<property><name>hive.map.aggr.hash.percentmemory</name><value>0.5</value></property>
+
+<!-- -->
+<property><name>hive.exec.copyfile.maxnumfiles</name><value>10</value></property>
+<property><name>hive.exec.copyfile.maxsize</name><value>32000000</value></property>
+
+<property><name>hive.groupby.skewindata</name><value>true</value></property>
+
+
+<!--  -->
+<property><name>mapred.max.split.size</name><value>256000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize</name><value>32000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.maxsize</name><value>256000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize.per.node</name><value>32000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize.per.rack</name><value>64000000</value></property>
+
+
+
+
+
+<!-- 其他一些参数 -->
+<property><name>hive.optimize.bucketmapjoin.sortedmerge</name><value>false</value></property>
+<property><name>hive.vectorized.execution.enabled</name><value>true</value></property>
+<property><name>hive.vectorized.execution.reduce.enabled</name><value>false</value></property>
+<property><name>hive.limit.pushdown.memory.usage</name><value>0.4</value></property>
+<property><name>hive.optimize.index.filter</name><value>true</value></property>
+<property><name>hive.exec.reducers.bytes.per.reducer</name><value>67108864</value></property>
+<property><name>hive.smbjoin.cache.rows</name><value>10000</value></property>
+<property><name>hive.exec.orc.default.stripe.size</name><value>256000000</value></property>
+<property><name>hive.fetch.task.conversion</name><value>more</value></property>
+<property><name>hive.fetch.task.conversion.threshold</name><value>1073741824</value></property>
+
+<property><name>hive.vectorized.execution.reduce.enabled</name><value>false</value></property>
+<property><name>hive.vectorized.groupby.checkinterval</name><value>4096</value></property>
+<property><name>hive.vectorized.groupby.flush.percent</name><value>0.1</value></property>
+
+
+<!-- 索引相关 -->
+<property><name>hive.optimize.index.filter</name><value>true</value></property>
+<property><name>hive.optimize.index.groupby</name><value>true</value></property>
+
+<!-- 事务支持 -->
+<property><name>hive.support.concurrency</name><value>false</value></property>
+
+
+<!-- 客户端 -->
+<property><name>hive.regionserver.thrift.http</name><value>true</value></property>
+<property><name>hive.thrift.support.proxyuser</name><value>true</value></property>
+
+</configuration>

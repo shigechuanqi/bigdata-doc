@@ -1,0 +1,233 @@
+
+
+1.基础已经安装 hadoop3.1.3+kerberos
+
+
+
+mvn clean package -DskipTests -Phadoop-2 -Pdist
+
+2.解压
+>tar -zxvf apache-hive-3.1.2-bin.tar.gz -C /opt
+>cd /opt
+>ln -s apache-hive-3.1.2-bin hive
+
+3.配置环境变量
+>vi ~/.bash_profile
+export HIVE_HOME=/opt/hive
+export HIVE_CONF_DIR=$HIVE_HOME/conf
+export PATH=$PATH:$HIVE_HOME/bin
+
+
+4.新建用户#多节点部署同理
+useradd hive
+
+5.配置kerberos
+>kadmin.local
+
+addprinc -randkey hive/mdw1@HADOOP.COM
+addprinc -randkey hive/sdw1@HADOOP.COM
+addprinc -randkey hive/sdw2@HADOOP.COM
+addprinc -randkey hive@HADOOP.COM
+
+xst -k /opt/keytab/hive.keytab hive/mdw1@HADOOP.COM hive/sdw1@HADOOP.COM hive/sdw2@HADOOP.COM hive@HADOOP.COM
+
+addprinc -randkey etl/mdw1@HADOOP.COM
+addprinc -randkey etl/sdw1@HADOOP.COM
+addprinc -randkey etl/sdw2@HADOOP.COM
+addprinc -randkey etl@HADOOP.COM
+
+xst -k /opt/keytab/etl.keytab etl/mdw1@HADOOP.COM etl/sdw1@HADOOP.COM etl/sdw2@HADOOP.COM etl@HADOOP.COM
+
+
+6.创建hdfs目录
+>kinit -kt hdfs.keytab hdfs
+>klist
+>hdfs dfs -mkdir /user/hive
+
+7.配置ranger
+
+/user/hive 给 hive用户
+
+
+8.修改配置文件
+
+cp beeline-log4j2.properties.template       beeline-log4j2.properties
+cp hive-default.xml.template                hive-site.xml
+cp hive-env.sh.template                     hive-env.sh
+cp hive-exec-log4j2.properties.template     hive-exec-log4j2.properties
+cp hive-log4j2.properties.template          hive-log4j2.properties
+cp llap-cli-log4j2.properties.template      llap-cli-log4j2.properties
+cp llap-daemon-log4j2.properties.template   llap-daemon-log4j2.properties
+
+配置hive-site.xml
+
+
+配置$HIVE_HOME/conf/client-jaas.conf 连接zookeeper用的
+>vi $HIVE_HOME/conf/client-jaas.conf
+Client {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  keyTab="/opt/hive/conf/keytab/hive.keytab"
+  storeKey=true
+  useTicketCache=false
+  serviceName="zookeeper"
+  principal="hive/mdw1@HADOOP.COM";
+};
+
+>vi $HIVE_HOME/conf/hive-env.sh
+export JVMFLAGS="$JVMFLAGS -Djava.security.auth.login.config=/opt/hive/conf/client-jaas.conf"
+export HADOOP_HOME=/opt/hadoop-3.1.3
+export HIVE_CONF_DIR=/opt/hive/conf
+
+#/opt/hive/yarn_lib/guava-19.0.jar ！！！！需要单独指定,不然在yarn中还会有jar包冲突的！！！！
+export HIVE_AUX_JARS_PATH=/opt/hive/lib:/opt/hive/yarn_lib/guava-19.0.jar
+
+#hive3.1.2($HIVE_HOME/lib/guava-19.0.jar) + hadoop3.1.3($HADOOP_HOME/share/hadoop/common/lib/guava-27.0-jre.jar) 冲突,更新hive到guava-27.0-jre.jar
+#更新完成后无法使用mr,更新提交的命令增加jar优先取用户目录
+>vi $HIVE_HOME/bin/hive
+export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS -Djline.terminal=jline.UnsupportedTerminal"
+-->
+export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS -Dmapreduce.task.classpath.user.precedence=true -Djline.terminal=jline.UnsupportedTerminal"
+
+
+##################hadoop core-site.xml
+<property>
+<name>hadoop.proxyuser.hive.groups</name>
+<value>*</value>
+</property>
+ 
+<property>
+<name>hadoop.proxyuser.hive.hosts</name>
+<value>*</value>
+</property>
+
+######################beeline 显示详细执行日志
+  <property>
+    <name>hive.async.log.enabled</name>
+    <value>false</value>
+  </property>
+
+
+
+
+9.运行
+
+nohup hive --service metastore >metastore.log 2>&1 &
+
+#配置文件hive-site.xml需要配置hive.server2.webui.host/hive.server2.thrift.bind.host 为各自机器的名字，这里使用变启动变量,保证配置文件是每个机器一致的
+nohup hive --hiveconf "hive.server2.webui.host=mdw1" -- hiveconf "hive.server2.thrift.bind.host=mdw1" --service hiveserver2 >hiveserver2.log 2>&1 &
+
+
+
+
+
+
+
+编译spark
+git clone -b 2.3.0 https://github.com/apache/spark.git
+
+
+export SCALA_HOME=/usr/local/scala-2.11.0
+export PATH=$SCALA_HOME/bin:$PATH
+
+>tar -zxvf spark-2.3.4.tgz 
+>cd spark-2.3.4
+>./dev/make-distribution.sh --name "hadoop2-without-hive" --tgz "-Pyarn,hadoop-provided,hadoop-2.7,parquet-provided,orc-provided"
+
+#生成 spark-2.3.4-bin-hadoop2-without-hive.tgz 包
+
+>tar -zxvf spark-2.3.4-bin-hadoop2-without-hive.tgz
+>ln -s spark-2.3.4-bin-hadoop2-without-hive spark
+>cd spark
+>mkdir lib
+>cp mysql jdbc.jar lib
+>cd conf
+
+#配置文件去掉.template
+
+>ln -s /opt/hive/conf/hive-site.xml hive-site.xml
+>
+cp docker.properties.template    docker.properties
+cp fairscheduler.xml.template    fairscheduler.xml
+cp log4j.properties.template     log4j.properties
+cp metrics.properties.template   metrics.properties
+cp slaves.template               slaves
+cp spark-defaults.conf.template  spark-defaults.conf
+cp spark-env.sh.template         spark-env.sh
+
+
+
+
+>cp $SPARK_HOME/scala-library-2.11.8.jar spark-core_2.11-2.3.0.jar spark-network-common_2.11-2.3.0.jar /opt/hive/lib/
+
+
+>vi $SPARK_HOME/conf/spark-env.sh
+
+export JAVA_HOME=/usr/local/jdk1.8.0_181
+export SPARK_WORKER_MEMORY=512M
+export HADOOP_HOME=/opt/hadoop-3.1.3
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_CLASSPATH=$SPARK_CLASSPATH:/opt/hive/spark/lib/mysql-connector-java-5.1.29.jar
+export SPARK_DIST_CLASSPATH=$($HADOOP_HOME/bin/hadoop classpath)
+export SPARK_HOME=/opt/hive/spark
+export SPARK_CONF_DIR=${SPARK_HOME}/conf
+export JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$HADOOP_HOME/lib/native
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
+export SPARK_YARN_USER_ENV="JAVA_LIBRARY_PATH=$JAVA_LI:BRARY_PATH,LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+
+>vi $SPARK_HOME/conf/spark-defaults.conf
+spark.master yarn
+spark.network.timeout 300
+spark.shuffle.service.enabled true
+spark.shuffle.service.port 7337
+spark.serializer org.apache.spark.serializer.KryoSerializer
+queue default
+num-executors 6
+executor-cores 2
+executor-memory 512M
+driver-memory 8G
+spark.executor.extraJavaOptions -XX:+PrintGCDetails -Dkey=value -Dnumbers="one two three"
+spark.yarn.jars hdfs:///user/hive/expand_lib/spark_jars/*
+#压缩报错需要增加这个
+spark.executor.extraLibraryPath /opt/hadoop-3.1.3/lib/native
+spark.yarn.cluster.driver.extraLibraryPath /opt/hadoop-3.1.3/lib/native
+spark.driver.extraLibraryPath /opt/hadoop-3.1.3/lib/native
+
+
+#yarn-site.xml
+>cp yarn/spark-2.2.2-yarn-shuffle.jar $HADOOP_HOME/share/hadoop/yarn/lib/
+
+
+>vi yarn-site.xml
+<property><name>yarn.nodemanager.aux-services</name>  <value>mapreduce_shuffle,spark_shuffle</value></property>
+<property><name>yarn.nodemanager.aux-services.spark_shuffle.class</name><value>org.apache.spark.network.yarn.YarnShuffleService</value></property>
+<property><name>spark.shuffle.service.port</name><value>7337</value></property>
+
+
+>cd $HIVE_HOME/config
+>ln -s ../spark/conf/spark-defaults.conf spark-defaults.conf
+>ln -s ../spark/conf/spark-env.sh spark-env.sh
+
+>cd $SPARK_HOME/config
+>ln -s ../../conf/hive-site.xml hive-site.xml
+
+
+
+
+
+#############连接 kerberos + zookeeper
+
+jdbc:hive2://mdw1:10001/;principal=hive@HADOOP.COM
+
+jdbc:hive2://mdw1:2181,sdw1:2181,sdw2:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2
+
+jdbc:hive2://172.18.16.13:2181,172.18.16.14:2181,172.18.16.15:2181/default;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;auth=noSasl
+
+
+!connect jdbc:hive2://mdw1:10001/;principal=hive/mdw1@HADOOP.COM
+
+!connect jdbc:hive2://mdw1:10001/;principal=etl/_HOST@HADOOP.COM
+
+!connect jdbc:hive2://mdw1:2181,sdw1:2181,sdw2:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;principal=hive/_HOST@HADOOP.COM
+
+

@@ -1,0 +1,37 @@
+{
+    "schemas": [
+        {
+            "user": "admin",
+            "schema": ".*",
+            "owner": true
+        },
+        {
+            "user": "int_fx",
+            "schema": "int_dm",
+            "owner": false
+        }
+    ],
+    "tables": [
+        {
+            "user": "int_fx",
+            "schema": "int_dm",
+            "table": ".*",
+            "privileges": [
+                "SELECT"
+            ]
+        },
+        {
+            "user": "admin",
+            "schema": ".*",
+            "table": ".*",
+            "privileges": [
+               "SELECT","INSERT","DELETE","OWNERSHIP","GRANT_SELECT"
+            ]
+        }
+    ],
+    "sessionProperties": [
+        {
+            "allow": false
+        }
+    ]
+}

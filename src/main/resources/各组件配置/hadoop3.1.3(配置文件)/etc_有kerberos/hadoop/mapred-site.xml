@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+
+<configuration>
+
+<!-- 指定mr框架为yarn方式 -->
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+
+<!--
+<property>
+<name>mapreduce.user.classpath.first</name>
+<value>true</value>
+</property>
+
+<property>
+<name>mapreduce.task.classpath.user.precedence</name>
+<value>true</value>
+</property>
+-->
+
+
+<property>
+<name>yarn.app.mapreduce.am.env</name>
+<value>HADOOP_MAPRED_HOME=${HADOOP_HOME}</value>
+</property>
+<property>
+<name>mapreduce.map.env</name>
+<value>HADOOP_MAPRED_HOME=${HADOOP_HOME}</value>
+</property>
+<property>
+<name>mapreduce.reduce.env</name>
+<value>HADOOP_MAPRED_HOME=${HADOOP_HOME}</value>
+</property>
+
+
+
+
+<!-- MR作业在提交时所使用的临时目录 -->
+<property>
+<name>yarn.app.mapreduce.am.staging-dir</name>
+<value>/tmp/hadoop-yarn/staging</value>
+</property>
+
+<!-- MapReduce作业在其中写入历史文件的目录 -->
+<property>
+<name>mapreduce.jobhistory.intermediate-done-dir</name>
+<value>/tmp/hadoop-yarn/staging/history/done_intermediate</value>
+</property>
+
+<!-- MapReduce作业在其中写入历史文件的目录 -->
+<property>
+<name>mapreduce.jobhistory.done-dir</name>
+<value>/tmp/hadoop-yarn/staging/history/done</value>
+</property>
+
+
+
+  <!-- 排序文件时一次合并的流的数量。这确定了打开文件句柄的数量。 -->
+  <property>
+    <name>mapreduce.task.io.sort.factor</name>
+    <value>100</value>
+  </property>
+
+  <!-- 减少运行的并行副本数量，可以从大量映射中获取输出 -->
+  <property>
+    <name>mapreduce.reduce.shuffle.parallelcopies</name>
+    <value>25</value>
+  </property>
+
+
+  <!-- 排序文件时要使用的缓冲内存总量，以兆字节为单位。默认情况下，为每个合并流提供1MB的空间，这应将寻道最小化。 -->
+  <property>
+    <name>mapreduce.task.io.sort.mb</name>
+    <value>64</value>
+  </property>
+
+  <!-- 每个作业的默认地图任务数。当mapreduce.framework.name为“本地”时被忽略。 -->
+  <property>
+    <name>mapreduce.job.maps</name>
+    <value>1</value>
+  </property>
+
+  <!-- 每个作业的默认reduce任务数。通常将其设置为群集缩减容量的99％ -->
+  <property>
+    <name>mapreduce.job.reduces</name>
+    <value>8</value>
+  </property>
+  
+  <!-- 每个作业的最大同时地图任务数。如果该值为0或负数，则没有限制。 -->
+  <property>
+    <name>mapreduce.job.running.map.limit</name>
+    <value>0</value>
+  </property>
+  
+  <!-- 	每个作业的最大同时还原任务数。如果该值为0或负数，则没有限制。 -->
+  <property>
+    <name>mapreduce.job.running.reduce.limit</name>
+    <value>0</value>
+  </property>
+  
+  <!-- 限制每个作业允许的地图任务数量。如果该值为负，则没有限制。 -->
+  <property>
+    <name>mapreduce.job.max.map</name>
+    <value>-1</value>
+  </property>
+  
+  <!-- 每个分区存储的最大块位置数，以进行位置计算。 -->
+  <property>
+    <name>mapreduce.job.max.split.locations</name>
+    <value>15</value>
+  </property>
+
+  <!-- 拆分元信息文件的最大允许大小。MapReduce ApplicationMaster不会尝试读取大于此配置值的已提交拆分元信息文件。如果设置为-1，则没有限制。 -->
+  <property>
+    <name>mapreduce.job.split.metainfo.maxsize</name>
+    <value>10000000</value>
+  </property>
+  
+  <!-- 调度程序为每个映射任务请求的内存量。如果未指定或为非肯定值，则从mapreduce.map.java.opts和mapreduce.job.heap.memory-mb.ratio推论得出。如果也未指定java-opts，则将其设置为1024。 -->
+  <property><name>mapreduce.map.memory.mb</name><value>1024</value></property>
+ 
+  <!-- 客户端参数 mapreduce.map.memory.mb*80% -->
+  <property><name>mapreduce.map.java.opts</name><value>-Xmx800m</value></property>
+ 
+  <!-- 调度程序为每个映射任务请求的虚拟核心数。 -->
+  <property><name>mapreduce.map.cpu.vcores</name><value>1</value></property>
+
+  <!-- 调度程序为每个化简任务请求的内存量。如果未指定或不是肯定的，则从mapreduce.reduce.java.opts和mapreduce.job.heap.memory-mb.ratio推论得出。如果也未指定java-opts，则将其设置为1024。 -->
+  <property><name>mapreduce.reduce.memory.mb</name><value>1024</value></property>
+  
+  <!-- 客户端参数 mapreduce.reduce.memory.mb*80% -->
+  <property><name>mapreduce.reduce.java.opts</name><value>-Xmx800m</value></property>
+
+  <!-- 	调度程序为每个简化任务请求的虚拟核心数。 -->
+  <property><name>mapreduce.reduce.cpu.vcores</name><value>1</value></property>
+  
+  <!-- 地图任务的日志记录级别。允许的级别为：关闭，致命，错误，警告，信息，调试，跟踪和全部。如果设置了“ mapreduce.job.log4j-properties-file”，则可以覆盖此处的设置。 -->
+  <property><name>mapreduce.map.log.level</name><value>INFO</value></property>
+  
+  <!-- 	reduce任务的日志记录级别。允许的级别为：关闭，致命，错误，警告，信息，调试，跟踪和全部。如果设置了“ mapreduce.job.log4j-properties-file”，则可以覆盖此处的设置。 -->
+  <property><name>mapreduce.reduce.log.level</name> <value>info</value></property>
+  
+<property>
+    <name>mapreduce.jobhistory.address</name>
+    <value>172.16.15.82:10020</value>
+</property> 
+<property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value>172.16.15.82:19888</value>
+</property>
+<property>
+    <name>mapreduce.jobhistory.intermediate-done-dir</name>
+    <value>hdfs:///tmp/jobhistory/intermediate</value>
+</property>
+<property>
+    <name>mapreduce.jobhistory.done-dir</name>
+    <value>hdfs:///tmp/jobhistory/done</value>
+</property>
+
+
+<property><name>mapreduce.input.fileinputformat.split.maxsize</name><value>32000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize</name><value>128000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize.per.node</name><value>32000000</value></property>
+<property><name>mapreduce.input.fileinputformat.split.minsize.per.rack</name><value>150000000</value></property>
+
+
+<!--
+<property><name>mapreduce.job.user.classpath.first</name><value>true</value></property>
+  -->
+<property><name>yarn.application.classpath</name><value>
+/opt/hadoop-3.1.3/etc/hadoop,
+/opt/hadoop-3.1.3/share/hadoop/common/*,
+/opt/hadoop-3.1.3/share/hadoop/common/lib/*,
+/opt/hadoop-3.1.3/share/hadoop/hdfs/*,
+/opt/hadoop-3.1.3/share/hadoop/hdfs/lib/*,
+/opt/hadoop-3.1.3/share/hadoop/mapreduce/*,
+/opt/hadoop-3.1.3/share/hadoop/mapreduce/lib/*,
+/opt/hadoop-3.1.3/share/hadoop/yarn/*,
+/opt/hadoop-3.1.3/share/hadoop/yarn/lib/*
+</value></property>
+
+
+
+
+
+<!-- MapReduce JobHistory Server kerberos config -->
+<property><name>mapreduce.jobhistory.keytab</name><value>/opt/keytab/jhs.keytab</value></property>
+<property><name>mapreduce.jobhistory.principal</name><value>jhs/_HOST@HADOOP.COM</value></property>
+
+</configuration>

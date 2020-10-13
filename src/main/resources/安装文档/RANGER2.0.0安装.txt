@@ -1,0 +1,162 @@
+
+1.软件版本
+jdk1.8
+mvnen 3.6.1
+ranger 2.0.0
+
+2.下载 
+git clone -b release-ranger-2.0.0 https://github.com/apache/ranger.git
+
+3.编译
+cd ranger
+mvn clean compile package assembly:assembly install
+mvn clean compile package assembly:assembly install -DskipTests -Drat.skip=true
+
+#2.1.0
+mvn -Dmaven.artifact.threads=100 -DskipTests=true package
+
+4.安装ranger-admin
+cd target/
+tar -zxvf ranger-2.0.0-admin.tar.gz -C /home/hadoop/ranger
+
+5.配置连接库MYSQL
+建库 rangerdb
+
+/home/hadoop/ranger/lib/mysql-connector-java-5.1.39-bin.jar
+
+
+6.安装solr
+/opt/ranger-admin/contrib/solr_for_audit_setup
+vi install.properties
+./setup.sh
+
+solr>cd /opt/solr/ranger_audit_server/scripts
+solr>./start_solr.sh
+
+
+
+
+6.配置 install.properties
+cd ranger-2.0.0-admin
+vi install.properties
+
+
+6.1配置solr
+
+
+7.初始化ranger-admin
+#切换root执行
+./setup.sh
+
+8.启动ranger-admin
+#切换root执行
+ews/ranger-admin-services.sh start
+
+8.1 登陆测试
+http://mdw1:6080
+
+
+
+
+
+
+
+## 连接zk需要配置这个
+vi /opt/ranger-admin/conf/client-jaas.conf
+Client {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  keyTab="/opt/ranger-admin/ranger.keytab"
+  storeKey=true
+  useTicketCache=false
+  serviceName="zookeeper"
+  principal="ranger/mdw1@HADOOP.COM";
+};
+
+
+vi /opt/ranger-admin/conf/java_home.sh
+export JAVA_OPTS="$JAVA_OPTS -Djava.security.auth.login.config=/opt/ranger-admin/conf/client-jaas.conf"
+
+
+
+
+9.安装ranger Usersync，需要使用root用户
+tar -zxvf ranger-2.0.0-usersync.tar.gz -C /home/hadoop/ranger
+
+cd ranger-2.0.0-usersync
+vim install.properties
+
+POLICY_MGR_URL=http://172.16.10.226:6080（这里不要动，就是这样）
+SYNC_SOURCE=unix
+SYNC_INTERVAL=1
+logdir=/opt/module/apache-ranger-2.0.0/target/ranger-2.0.0-usersync/logs（改成自己的目录）
+
+
+
+
+
+
+9.1 启动ranger Usersync 
+#需root
+./setup.sh
+./ranger-usersync-services.sh start
+
+
+10 安装ranger-hdfs
+tar -zxvf ranger-2.0.0-hdfs-plugin.tar.gz -C /home/hadoop/ranger
+cd ranger-2.0.0-hdfs-plugin
+vim install.properties 
+
+
+10.1 启动Ranger HDFS Plugin
+./enable-hdfs-plugin.sh
+
+
+
+hdfs://cluster/
+
+
+
+安装kerberos需配置
+policy.download.auth.users hdfs
+
+vi /etc/krb5.conf
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = HADOOP.COM
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ EXAMPLE.COM = {
+  kdc = mdw1
+  admin_server = mdw1
+ }
+
+[domain_realm]
+ mdw1 = HADOOP.COM
+
+
+vi /var/kerberos/krb5kdc/kdc.conf
+[kdcdefaults]
+ kdc_ports = 88
+ kdc_tcp_ports = 88
+
+[realms]
+ HADOOP.COM = {
+  #master_key_type = aes256-cts
+  acl_file = /var/kerberos/krb5kdc/kadm5.acl
+  dict_file = /usr/share/dict/words
+  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab
+  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal
+ }
+
+
