@@ -230,4 +230,5 @@ jdbc:hive2://172.18.16.13:2181,172.18.16.14:2181,172.18.16.15:2181/default;servi
 
 !connect jdbc:hive2://mdw1:2181,sdw1:2181,sdw2:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;principal=hive/_HOST@HADOOP.COM
 
-
+######zk+kerberos
+jdbc:hive2://mdw1:2181,sdw1:2181,sdw2:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;principal=hive/_HOST@HADOOP.COM

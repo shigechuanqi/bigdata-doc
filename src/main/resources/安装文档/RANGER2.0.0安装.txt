@@ -160,3 +160,26 @@ vi /var/kerberos/krb5kdc/kdc.conf
  }
 
 
+
+
+#######################Service Manager###########################
+#########hadoopdev
+Service Name=hadoopdev
+Username=hdfs
+Password=hdfs
+Namenode URL=hdfs://mdw1:9001,hdfs://sdw1:9001
+Authorization Enabled=YES
+Authentication Type=Kerberos
+RPC Protection Type=Authentication
+Add New Configurations=policy.download.auth.users:nn
+
+
+
+
+
+
+
+
+
+
+
