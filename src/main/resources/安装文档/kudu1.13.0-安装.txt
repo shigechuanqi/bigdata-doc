@@ -1,0 +1,77 @@
+
+参考:https://kudu.apache.org/docs/installation.html
+
+
+操作系统：redhat6.5
+1.安装基础华环境
+root>yum install autoconf automake cyrus-sasl-devel cyrus-sasl-gssapi \
+       cyrus-sasl-plain flex gcc gcc-c++ gdb git java-1.8.0-openjdk-devel \
+       krb5-server krb5-workstation libtool make openssl-devel patch \
+       pkgconfig redhat-lsb-core rsync unzip vim-common which
+root>cd /etc/yum.repos.d/
+root>wegt https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo
+root>yum install -y scl-utils yum-utils devtoolset-3-toolchain
+root>yum install -y doxygen gem graphviz ruby-devel zlib-devel
+root>cd /opt/soft
+root>git -b 1.13.0 clone https://github.com/apache/kudu
+root>cd kudu
+root>build-support/enable_devtoolset.sh thirdparty/build-if-necessary.sh
+#等待较长时间
+root>mkdir -p build/release
+root>cd build/release
+../../build-support/enable_devtoolset.sh \
+  ../../thirdparty/installed/common/bin/cmake \
+  -DCMAKE_BUILD_TYPE=release ../..
+root>make -j4
+root>make DESTDIR=/opt/kudu install
+
+#分发执行文件
+root>scp -r /opt/kudu sdw1:/opt
+root>scp -r /opt/kudu sdw2:/opt
+
+#设置环境变量
+root>vi /etc/profile
+export KUDU_HOME=/opt/kudu/usr/local
+export PATH=$KUDU_HOME/bin:$KUDU_HOME/sbin::$PATH
+
+#创建目录
+root>cd /opt/kudu
+mkdir -p master/data
+mkdir -p master/log
+mkdir -p master/wal
+mkdir -p tserver/data
+mkdir -p tserver/log
+mkdir -p tserver/wal
+mkdir -p master/conf
+mkdir -p tserver/conf
+
+root>vi master/conf/master.conf
+-rpc_bind_addresses=sdw2:7051
+-webserver_interface=sdw2
+-webserver_port=8051
+-fs_wal_dir=/opt/kudu/master/wal
+-fs_data_dirs=/opt/kudu/master/data
+-log_dir=/opt/kudu/master/log
+-unlock_unsafe_flags
+-never_fsync
+-time_source=system_unsync
+
+root>vi tserver/conf/tserver.conf
+-tserver_master_addrs=sdw2:7051
+-rpc_bind_addresses=sdw2:7150
+-webserver_interface=sdw2
+-webserver_port=8150
+-fs_wal_dir=/opt/kudu/tserver/wal
+-fs_data_dirs=/opt/kudu/tserver/data
+-log_dir=/opt/kudu/tserver/log
+-unlock_unsafe_flags
+-never_fsync
+-time_source=system_unsync
+
+
+root>nohup kudu-master  --flagfile=./master/conf/master.conf &
+root>nohup kudu-tserver --flagfile=./tserver/conf/tserver.conf &
+
+
+#web页面
+http://sdw2:8051
