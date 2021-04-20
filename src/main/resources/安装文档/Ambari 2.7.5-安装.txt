@@ -1,0 +1,76 @@
+
+https://cwiki.apache.org/confluence/display/AMBARI/Installation+Guide+for+Ambari+2.7.5
+1.下载编译
+
+wget https://www-eu.apache.org/dist/ambari/ambari-2.7.5/apache-ambari-2.7.5-src.tar.gz
+tar xfvz apache-ambari-2.7.5-src.tar.gz
+cd apache-ambari-2.7.5-src
+mvn versions:set -DnewVersion=2.7.5.0.0
+
+pushd ambari-metrics
+mvn versions:set -DnewVersion=2.7.5.0.0
+popd
+
+
+#RHEL (CentOS 7) & SUSE (SLES 12 SP2 & SP3):
+mvn -B clean install rpm:rpm -DnewVersion=2.7.5.0.0 -DbuildNumber=5895e4ed6b30a2da8a90fee2403b6cab91d19972 -DskipTests -Dpython.ver="python >= 2.6"
+
+#Ubuntu/Debian:
+mvn -B clean install jdeb:jdeb -DnewVersion=2.7.5.0.0 -DbuildNumber=5895e4ed6b30a2da8a90fee2403b6cab91d19972 -DskipTests -Dpython.ver="python >= 2.6"
+
+
+2.Install Ambari Server
+Install the rpm package from ambari-server/target/rpm/ambari-server/RPMS/noarch/
+
+[For CentOS 7]
+
+yum install ambari-server*.rpm    #This should also pull in postgres packages as well.
+[For SLES 12]
+
+zypper install ambari-server*.rpm    #This should also pull in postgres packages as well.
+[For Ubuntu/Debian]
+
+apt-get install ./ambari-server*.deb   #This should also pull in postgres packages as well.
+
+
+3.Setup and Start Ambari Server
+Run the setup command to configure your Ambari Server, Database, JDK, LDAP, and other options:
+
+ambari-server setup
+Follow the on-screen instructions to proceed.
+
+Once set up is done, start Ambari Server:
+
+ambari-server start
+
+
+4.Install and Start Ambari Agent on All Hosts
+Note: This step needs to be run on all hosts that will be managed by Ambari.
+
+Copy the rpm package from ambari-agent/target/rpm/ambari-agent/RPMS/x86_64/ and run:
+
+[For CentOS 7]
+
+yum install ambari-agent*.rpm
+[For SLES 12]
+
+zypper install ambari-agent*.rpm
+[Ubuntu/Debian]
+
+apt-get install ./ambari-agent*.deb
+Edit /etc/ambari-agent/ambari.ini
+
+...
+[server]
+hostname=localhost
+
+...
+Make sure hostname under the [server] section points to the actual Ambari Server host, rather than "localhost".
+
+ambari-agent start
+
+5.Deploy Cluster using Ambari Web UI
+
+打开网络浏览器，然后转到http://<ambari-server-host>:8080。
+使用用户名admin 和密码 admin登录，  然后按照屏幕上的说明进行操作。通过确保尽快将管理员详细信息从默认值更改来保护环境。
+在“安装选项”页面下，输入要添加到群集的主机。不提供任何SSH密钥，并选中“在主机上执行手动注册并且不使用SSH”，然后单击“下一步”。

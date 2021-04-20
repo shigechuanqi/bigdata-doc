@@ -352,7 +352,14 @@ chown yarn:hadoop nm.keytab
 chown yarn:hadoop rm.keytab
 chown yarn:hadoop jhs.keytab
 
+###############无伤添加
+运行ktadd会随机化主体的密钥。如果您刚刚创建了主体，那么这无关紧要。如果主体已经存在，并且现有用户或服务依赖能够使用密码或密钥表进行身份验证，则使用ktadd-norandkey选项。
 
+kadmin.local
+addprinc -randkey presto@HADOOP.COM
+addprinc -randkey presto/master1.fengbang.hdp.com@HADOOP.COM
+ktadd -k /etc/security/keytabs/presto.keytab presto@HADOOP.COM
+ktadd -k /etc/security/keytabs/presto.keytab presto/master1.fengbang.hdp.com@HADOOP.COM
 
 
 

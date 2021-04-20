@@ -33,7 +33,7 @@ ip             node.id       homepath                      prot   coordinator  n
 #启动HTTPS
 >mkdir /data03/presto/key
 >cd /data03/presto/key
->keytool -genkeypair -alias presto -keyalg RSA -keystore keystore.jks
+>keytool -genkeypair -validity 36000 -alias presto -keyalg RSA -keystore keystore.jks
 #其中的cm项最好使用域名匹配*.fengbangleasing.com
 
 
@@ -297,4 +297,14 @@ ssh 172.18.16.13  "source ~/.bash_profile;/data03/presto/presto/bin/launcher res
         ResultSet resultSet1= statement1.executeQuery("show tables");
 
 8.注意
+
+
+kerboes
+
+kadmin.local
+addprinc -randkey presto@HADOOP.COM
+addprinc -randkey presto/master1.fengbang.hdp.com@HADOOP.COM
+ktadd -k /etc/security/keytabs/presto.keytab presto@HADOOP.COM
+ktadd -k /etc/security/keytabs/presto.keytab presto/master1.fengbang.hdp.com@HADOOP.COM
+
 
