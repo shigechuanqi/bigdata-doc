@@ -1,0 +1,41 @@
+
+
+https://www.cnblogs.com/xuliang666/p/11112713.html
+
+#配置好 HDP yum源
+yum install hadoop-hdfs-fuse -y
+
+
+#增加环境变量
+export LD_LIBRARY_PATH=/usr/hdp/3.1.4.0-315/usr/lib/:/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH:${JAVA_HOME}/jre/lib/amd64/server
+
+cd /usr/hdp/3.1.4.0-315/hadoop
+./bin/hadoop-fuse-dfs hdfs://fbbigdata/ /data/fuse_hdfs/
+
+
+
+user/hive/warehouse
+
+#取消挂载
+fusermount -u /data/fuse_hdfs
+
+
+
+[etl@master1 hadoop]$ ./bin/hadoop-fuse-dfs
+USAGE: /usr/hdp/3.1.4.0-315/hadoop/bin/fuse_dfs [debug]
+[--help] [--version]
+[-oprotected=<colon_seped_list_of_paths] [rw]
+[-onotrash] [-ousetrash] [-obig_writes]
+[-oprivate (single user)] [ro]
+[-oserver=<hadoop_servername>]
+[-oport=<hadoop_port>]
+[-oentry_timeout=<secs>]
+[-oattribute_timeout=<secs>]
+[-odirect_io]
+[-onopoermissions]
+[-o<other fuse option>] <mntpoint> [fuse options]
+
+
+
+* 8,23 * * * kinit -kt /opt/script/etc/keytab/etl.keytab etl@HADOOP.COM
+
