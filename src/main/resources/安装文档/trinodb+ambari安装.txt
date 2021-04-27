@@ -56,16 +56,34 @@ cp 到 /var/www/html/ambari/presto
 'hive.config.resources=/etc/hadoop/conf/core-site.xml,/etc/hadoop/conf/hdfs-site.xml',
 'hive.metastore.authentication.type=KERBEROS',
 'hive.metastore.service.principal=hive/_HOST@HADOOP.COM',
-'hive.metastore.client.principal=presto',
-'hive.metastore.client.keytab=/etc/security/keytabs/presto.keytab',
+'hive.metastore.client.principal=hive@HADOOP.COM',
+'hive.metastore.client.keytab=/opt/presto/hive.service.keytab',
 'hive.hdfs.authentication.type=KERBEROS',
 'hive.hdfs.impersonation.enabled=true',
-'hive.hdfs.presto.principal=presto',
-'hive.hdfs.presto.keytab=/etc/security/keytabs/presto.keytab'
+'hive.hdfs.trino.principal=presto',
+'hive.hdfs.trino.keytab=/opt/presto/presto.keytab'
+
+
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.service.principal=hive/_HOST@LABS.TERADATA.COM
+# When using HDFS impersonation we talk to HDFS as session user configured in tempto (which is 'hive')
+# However, when DROP TABLE is issued, Metastore needs to be able to delete the table files on HDFS,
+# otherwise they be silently left behind, potentially causing some further tests to fail. For this reason,
+# `hive.metastore.client.principal` needs to match session user configured in tempto.
+hive.metastore.client.principal=hive/hadoop-master@LABS.TERADATA.COM
+hive.metastore.client.keytab=/etc/hive/conf/hive.keytab
+
+hive.hdfs.authentication.type=KERBEROS
+hive.hdfs.impersonation.enabled=true
+hive.hdfs.trino.principal=presto-server/_HOST@LABS.TERADATA.COM
+hive.hdfs.trino.keytab=/etc/presto/conf/presto-server.keytab
+hive.fs.cache.max-size=10
+hive.max-partitions-per-scan=100
+
 ]
 ,'ora_cbs':[
 'connector.name=oracle',
-'connection-url=jdbc:oracle:thin:FBZLSelect/FBZLSelect@//172.16.17.20:1521/cbsstandby',
+'connection-url=jdbc:oracle:thin:@//172.16.17.20:1521/cbsstandby',
 'connection-user=FBZLSelect',
 'connection-password=FBZLSelect'
 ]
@@ -77,18 +95,21 @@ cp 到 /var/www/html/ambari/presto
 ]
 ,'druid':[
 'connector.name=druid'
-,'druid.coordinator-url=master1.fengbang.hdp.com:8081'
-,'druid.broker-url=master1.fengbang.hdp.com:8082'
-,'druid.schema-name=druid'
-,'druid.compute-pushdown-enabled=true'
+,'connection-url=jdbc:avatica:remote:url=http://master1.fengbang.hdp.com:8082/druid/v2/sql/avatica/'
 ]
 ,'jmx':[
 'connector.name=jmx'
-,'jmx.dump-tables=java.lang:type=Runtime,com.facebook.presto.execution.scheduler:name=NodeScheduler'
+,'jmx.dump-tables=java.lang:type=Runtime,trino.execution.scheduler:name=NodeScheduler'
 ,'jmx.dump-period=10s'
 ,'jmx.max-entries=86400'
 ]
 }
+
+
+connector.name=jmx
+jmx.dump-tables=java.lang:type=Runtime,trino.execution.scheduler:name=NodeScheduler
+jmx.dump-period=10s
+jmx.max-entries=86400
 
 
 ####卸载####
@@ -99,7 +120,11 @@ cp 到 /var/www/html/ambari/presto
 
 
 
+##################配置管理组#############################
 
+##################集群+kerberos#############################
+控制节点需要配置kerberos
+工作节点不需要要但是需要配置HTTPS
 
 
 

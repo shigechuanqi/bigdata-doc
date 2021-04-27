@@ -37,6 +37,9 @@ ip             node.id       homepath                      prot   coordinator  n
 #其中的cm项最好使用域名匹配*.fengbangleasing.com
 
 
+
+keytool -export -keystore keystore.jks -alias presto -file keystore.cer -rfc
+
 #用户密码登陆+用户权限管理
 
 
