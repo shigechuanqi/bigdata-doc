@@ -1,0 +1,112 @@
+
+1.下载
+https://github.com/trinodb/ambari-presto-service
+
+
+#安装参考
+https://prestodb.io/ambari-presto-service/
+
+
+
+2.ambari-server 主机上
+mkdir /var/lib/ambari-server/resources/stacks/HDP/3.1/services/TRINO
+cd /var/lib/ambari-server/resources/stacks/HDP/3.1/services/TRINO
+
+将 ambari-presto-service 解压到 /var/lib/ambari-server/resources/stacks/HDP/3.1/services/TRINO
+
+
+3.配置本地源
+原有 /var/www/html/ambari 目录中
+mkdir presto
+cd presto
+#下载rpm包
+https://trino.io/download.html  || https://repo1.maven.org/maven2/io/trino/trino-server-rpm/355/
+将 trino-server-rpm-355.rpm trino-cli-355-executable.jar
+
+
+
+cp 到 /var/www/html/ambari/presto
+
+
+
+4.因为JDK必须用11所以有一些特殊处理
+所有机器上安装jdk11
+固定到/usr/local/jdk11
+
+
+
+
+
+
+
+
+
+{
+'hive':[
+'connector.name=hive-hadoop2',
+'hive.metastore.uri=thrift://node1.fengbang.hdp.com:9083',
+'hive.storage-format=ORC',
+'hive.compression-codec=GZIP',
+'hive.security=legacy',
+'hive.allow-drop-table=true',
+'hive.allow-add-column=true',
+'hive.allow-drop-column=true',
+'hive.allow-rename-table=true',
+'hive.allow-rename-column=true',
+'hive.config.resources=/etc/hadoop/conf/core-site.xml,/etc/hadoop/conf/hdfs-site.xml',
+'hive.metastore.authentication.type=KERBEROS',
+'hive.metastore.service.principal=hive/_HOST@HADOOP.COM',
+'hive.metastore.client.principal=presto',
+'hive.metastore.client.keytab=/etc/security/keytabs/presto.keytab',
+'hive.hdfs.authentication.type=KERBEROS',
+'hive.hdfs.impersonation.enabled=true',
+'hive.hdfs.presto.principal=presto',
+'hive.hdfs.presto.keytab=/etc/security/keytabs/presto.keytab'
+]
+,'ora_cbs':[
+'connector.name=oracle',
+'connection-url=jdbc:oracle:thin:FBZLSelect/FBZLSelect@//172.16.17.20:1521/cbsstandby',
+'connection-user=FBZLSelect',
+'connection-password=FBZLSelect'
+]
+,'gp_dw':[
+'connector.name=postgresql',
+'connection-url=jdbc:postgresql://172.16.18.10:5432/sjck_fb',
+'connection-user=etl_gp',
+'connection-password=gp123'
+]
+,'druid':[
+'connector.name=druid'
+,'druid.coordinator-url=master1.fengbang.hdp.com:8081'
+,'druid.broker-url=master1.fengbang.hdp.com:8082'
+,'druid.schema-name=druid'
+,'druid.compute-pushdown-enabled=true'
+]
+,'jmx':[
+'connector.name=jmx'
+,'jmx.dump-tables=java.lang:type=Runtime,com.facebook.presto.execution.scheduler:name=NodeScheduler'
+,'jmx.dump-period=10s'
+,'jmx.max-entries=86400'
+]
+}
+
+
+####卸载####
+
+1.ambari删除服务
+2.rpm -e trino-server-rpm-355
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

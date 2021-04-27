@@ -1,0 +1,133 @@
+
+
+presto 0.249.1
+ambari-presto-1.3
+ambari 2.7.0
+
+
+
+1.创建目录
+#创建文件夹
+mkdir /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO
+#文件上传，把下载的ambari-presto文件解压上传到
+unzip ambari-presto-service-master.zip  -d /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO
+
+目录自己调一下
+
+[root@master1 PRESTO]# pwd
+/var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO
+[root@master1 PRESTO]# ll
+total 44
+drwxr-xr-x 2 root root   117 Mar  9  2018 configuration
+drwxr-xr-x 2 root root   151 Mar  9  2018 docs
+-rw-r--r-- 1 root root    99 Mar  9  2018 HISTORY.rst
+-rw-r--r-- 1 root root 11358 Mar  9  2018 LICENSE
+-rw-r--r-- 1 root root  1880 Mar  9  2018 Makefile
+-rw-r--r-- 1 root root   304 Mar  9  2018 MANIFEST.in
+-rwxr-xr-x 1 root root  2781 Mar  9  2018 metainfo.xml
+drwxr-xr-x 3 root root    40 Mar  9  2018 package
+-rw-r--r-- 1 root root   345 Mar  9  2018 README.md
+-rw-r--r-- 1 root root    68 Mar  9  2018 requirements.txt
+-rwxr-xr-x 1 root root  1874 Mar  9  2018 setup.py
+drwxr-xr-x 4 root root   188 Mar  9  2018 tests
+drwxr-xr-x 2 root root    24 Mar  9  2018 themes
+-rw-r--r-- 1 root root   158 Mar  9  2018 tox.ini
+
+
+
+2.下载rpm包
+[root@node1 presto]# mkdir -p /var/www/html/ambari/presto
+[root@node1 presto]# cd /var/www/html/ambari/presto
+[root@node1 presto]# wget http://search.maven.org/remotecontent?filepath=com/facebook/presto/presto-server-rpm/0.249.1/presto-server-rpm-0.249.1.rpm
+[root@node1 presto]# wget http://search.maven.org/remotecontent?filepath=com/facebook/presto/presto-cli/0.249.1/presto-cli-0.249.1-executable.jar
+
+#下载如果名字不对 改改名字
+
+>createrepo ${PWD}
+
+node1结点要安装Presto coordinator，需要配置presto仓库
+[root@node1 ~]#vi /etc/yum.repos.d/presto.repo
+[presto_repo]
+name=presto_repo
+baseurl=http://172.16.18.32:8001/ambari/presto/
+enable=1
+gpgcheck=0
+
+scp /etc/yum.repos.d/presto.repo 172.16.18.31:/etc/yum.repos.d
+scp /etc/yum.repos.d/presto.repo 172.16.18.33:/etc/yum.repos.d
+
+yum clean all
+yum makecache
+yum repolist
+
+
+
+#修改presto版本（版本改成 0.249.1，跟第二步中的内容保持一致
+vi /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO/metainfo.xml
+#修改下载连接为本地路径
+vi /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO/package/scripts/download.ini
+ 
+--------------------------------------
+presto_rpm_url = http://172.16.18.32:8001/ambari/presto/presto-server-rpm-0.249.1.rpm
+presto_cli_url = http://172.16.18.32:8001/ambari/presto/presto-cli-0.249.1-executable.jar
+---------------------------------------------------
+#修改脚本，改变java_home的获取路径（修改后，就不会出现下面问题1中的错误）
+vi /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO/package/scripts/params.py
+ 
+--------
+host_level_params = config['hostLevelParams']
+#改成
+host_level_params = config['ambariLevelParams']
+ 
+---------
+#注释掉该文件中的冒烟测试，见问题3
+vi /var/lib/ambari-server/resources/stacks/HDP/3.1/services/PRESTO/package/scripts/presto_coordinator.py 
+
+#smoketest_presto(PrestoClient('localhost', 'root', config_properties['http-server.http.port']), all_hosts)
+
+
+ambari-server restart
+
+
+Ambari=>Presto=>Configs=>Connectors添加如下Connectors
+
+
+{
+'hive':[
+'connector.name=hive-hadoop2',
+'hive.metastore.uri=thrift://node1.fengbang.hdp.com:9083',
+'hive.storage-format=ORC',
+'hive.compression-codec=GZIP',
+'hive.security=legacy',
+'hive.allow-drop-table=true',
+'hive.allow-add-column=true',
+'hive.allow-drop-column=true',
+'hive.allow-rename-table=true',
+'hive.allow-rename-column=true'
+]
+,'cbs':[
+'connector.name=oracle',
+'connection-url=jdbc:oracle:thin:FBZLSelect/FBZLSelect@//172.16.17.20:1521/cbsstandby',
+'connection-user=FBZLSelect',
+'connection-password=FBZLSelect'
+]
+,'gp_dw':[
+'connector.name=postgresql',
+'connection-url=jdbc:postgresql://172.16.18.10:5432/sjck_fb',
+'connection-user=etl_gp',
+'connection-password=gp123'
+]
+}
+
+
+#提示错误需要将 orai18n.jar 拷贝到每台机器的 /usr/lib/presto/lib/plugin/oracle 中
+Non supported character set (add orai18n.jar in your classpath): ZHS1
+
+
+
+/usr/lib/presto/bin/presto-cli --server master1.fengbang.hdp.com:8285 --catalog cbs --schema default
+
+
+调整hive.strict.managed.tables和hive.txn.strict.locking.mode为false，关闭严格模式
+
+
